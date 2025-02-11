@@ -5,9 +5,7 @@ package view;
 
 import org.math.plot.*;
 
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -25,10 +23,6 @@ import logic.AlgoritmoGenetico;
 import model.Individuo;
 import model.Valores;
 import utils.Pair;
-
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
 
 public class Controls extends JPanel {
 
@@ -51,6 +45,7 @@ public class Controls extends JPanel {
     private Plot2DPanel plot2D;
     private Valores valores;
 
+
     /**
      * Constructor de la clase.
      */
@@ -62,6 +57,7 @@ public class Controls extends JPanel {
         this.precision 		=new JTextField("0.001", 15);
         this.elitismo 		=new JTextField("0", 15);
         this.genes_spinner 	=new JSpinner();
+
 
         AG=new AlgoritmoGenetico(this);
 
@@ -80,7 +76,7 @@ public class Controls extends JPanel {
         JPanel leftPanel=new JPanel(new GridBagLayout());
         leftPanel.setPreferredSize(new Dimension(335, 600));
         GridBagConstraints gbc=new GridBagConstraints();
-        gbc.insets=new Insets(5, 5, 5, 5);
+        gbc.insets = new Insets(10, 10, 10, 10); // Más separación
         String[] funciones={"F1: Calibracion y Prueba",
                 "F2: Mishra Bird",
                 "F3: Holder table",
@@ -106,18 +102,18 @@ public class Controls extends JPanel {
 
         text_area=new JTextArea(2, 2);
         text_area.append("Esperando una ejecucion...");
+        text_area.setPreferredSize(new Dimension(300, 100));
         SpinnerNumberModel spinnerModel = new SpinnerNumberModel(2, 1, 10, 1);
         genes_spinner.setModel(spinnerModel);
         run_button=new JButton();
         run_button.setToolTipText("Run button");
+        ImageIcon icon = load_image("icons/run.png",20,20);
 
-        run_button.setIcon(load_image("icons/run.png"));
+        run_button.setIcon(icon);
         run_button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int tmp=Integer.parseInt(elitismo.getText());
-                // ENG: Executes the algorithm if the elitism percentage is valid.
-                // ESP: Ejecuta el algoritmo si el porcentaje de elitismo es valido.
                 if(tmp<0||tmp>100) actualiza_fallo("Elitismo porcentaje");
                 else run();
             }
@@ -155,6 +151,9 @@ public class Controls extends JPanel {
 
         gbc.gridx++;
         gbc.gridy=0;
+        gbc.fill = GridBagConstraints.HORIZONTAL; // Hace que ocupen todo el ancho disponible
+        gbc.weightx = 1.0; // Permite que se expandan horizontalmente
+
 
         leftPanel.add(tam_poblacion, gbc);
         gbc.gridy++;
@@ -248,8 +247,8 @@ public class Controls extends JPanel {
 
 
 
-    protected ImageIcon load_image(String path) {
-        return new ImageIcon(Toolkit.getDefaultToolkit().createImage(path));
+    protected ImageIcon load_image(String path,int width,int height) {
+        return new ImageIcon(Toolkit.getDefaultToolkit().createImage(path).getScaledInstance(width, height, Image.SCALE_SMOOTH));
     }
 
     private void set_valores() {
