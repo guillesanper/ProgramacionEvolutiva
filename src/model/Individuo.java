@@ -2,14 +2,16 @@ package model;
 
 public abstract class Individuo<T> {
 
-    public T[] cromosoma;
+    public T[] chromosome;
 
-    public int[] tamGenes;
+    public int[] genesSize;
 
     public double fitness;
 
-    public double[] fenotipo;
+    public abstract double[] getPhenotypes();
 
-    public abstract double evaluateFitness();
+    public abstract double getFitness();
+
+    public abstract void mutate(double p);
 
 }
