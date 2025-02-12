@@ -11,6 +11,9 @@ public class IndividuoFuncion1 extends IndividuoBoolean {
 
     @Override
     public double getFitness() {
-        return 0;
+        double x1 = this.getPhenotype(0);
+        double x2 = this.getPhenotype(1);
+
+        return 21.5 + x1*Math.sin(4*Math.PI*x1) + x2*Math.sin(20*Math.PI*x2);
     }
 }
