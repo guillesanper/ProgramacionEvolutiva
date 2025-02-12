@@ -254,7 +254,7 @@ public class Controls extends JPanel {
     private void set_valores() {
         valores = new Valores(Integer.parseInt(tam_poblacion.getText()),
                 Integer.parseInt(generaciones.getText()),
-                seleccion_CBox.getSelectedIndex(),
+                (String) seleccion_CBox.getSelectedItem(),
                 cruce_CBox.getSelectedIndex(),
                 Double.parseDouble(prob_cruce.getText()),
                 mutacion_CBox.getSelectedIndex(),

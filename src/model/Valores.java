@@ -2,9 +2,9 @@
 package model;
 
 public class Valores {
-    public int tam_poblacion;
-    public int generaciones;
-    public int seleccion_idx;
+    public int populationSize;
+    public int generations;
+    public String selectionType;
     public int cruce_idx;
     public double prob_cruce;
     public int mut_idx;
@@ -15,13 +15,13 @@ public class Valores {
     public int elitismo;
 
 
-    public Valores(int tam_poblacion, int generaciones, int seleccion_idx,
+    public Valores(int populationSize, int generations, String selectionType,
                    int cruce_idx, double prob_cruce, int mut_idx, double prob_mut,
                    double precision, int funcion_idx, int num_genes, int elitismo) {
 
-        this.tam_poblacion = tam_poblacion;
-        this.generaciones = generaciones;
-        this.seleccion_idx = seleccion_idx;
+        this.populationSize = populationSize;
+        this.generations = generations;
+        this.selectionType = selectionType;
         this.cruce_idx = cruce_idx;
         this.prob_cruce = prob_cruce;
         this.mut_idx = mut_idx;
