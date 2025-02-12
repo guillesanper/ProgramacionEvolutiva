@@ -11,8 +11,19 @@ public class IndividuoFuncion3 extends IndividuoBoolean{
         this.initGens(mins, maxs);
     }
 
+    private double calcHalf(double x) {
+        double sum = 0;
+
+        for (int i = 1; i <= 5; i++) {
+            sum += i*Math.cos((i+1)*x+i);
+        }
+
+        return sum;
+    }
+
     @Override
     public double getFitness() {
-        return 0;
+        return calcHalf(this.getPhenotype(0))+calcHalf(this.getPhenotype(1));
     }
+
 }
