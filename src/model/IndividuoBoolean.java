@@ -4,7 +4,6 @@ import java.util.Random;
 
 public abstract class IndividuoBoolean extends Individuo<Boolean> {
     protected final Random rand ;
-    public int numGens;
     public double[] min;
     public double[] max;
     public double errorValue;
@@ -40,6 +39,7 @@ public abstract class IndividuoBoolean extends Individuo<Boolean> {
         return (int) (Math.log10(((max - min) / precision) + 1) / Math.log10(2));
     }
 
+    @Override
     public double getPhenotype(int n) {
         Boolean[] v = new Boolean[this.genesSize[n]];
         if (n == 0) {
