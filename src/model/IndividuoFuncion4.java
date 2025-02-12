@@ -1,22 +1,22 @@
 package model;
 
-public class IndividuoFuncion4 extends Individuo<Boolean> {
+public class IndividuoFuncion4 extends IndividuoBoolean {
 
-    public IndividuoFuncion4(double errorValue) {
-    }
+    public IndividuoFuncion4(double errorValue, int d) {
+        super(errorValue, d);
+        double[] mins = new double[d];
+        double[] maxs = new double[d];
 
-    @Override
-    public double[] getPhenotypes() {
-        return new double[0];
+        for (int i = 0; i < d; i++) {
+            mins[i] = 0;
+            maxs[i] = Math.PI;
+        }
+
+        this.initGens(mins, maxs);
     }
 
     @Override
     public double getFitness() {
         return 0;
-    }
-
-    @Override
-    public void mutate(double p) {
-
     }
 }
