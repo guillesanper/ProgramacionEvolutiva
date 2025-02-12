@@ -11,7 +11,7 @@ public class IndividuoFuncion2 extends Individuo<Boolean> {
     public int[] genesSize;
     public int totalSize;
 
-    public IndividuoFuncion2() {
+    public IndividuoFuncion2(double errorValue) {
         this.rand = new Random();
         this.genesSize = new int[2];
         this.min = new double[]{-10.0, -6.5}; // Rango de x1 y x2

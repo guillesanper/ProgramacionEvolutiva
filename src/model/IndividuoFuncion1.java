@@ -10,7 +10,7 @@ public class IndividuoFuncion1 extends Individuo<Boolean>{
     public double errorValue;
     public double totalSize;
 
-    public IndividuoFuncion1(){
+    public IndividuoFuncion1(double errorValue){
         this.rand = new Random();
         this.genesSize = new int[2];
         this.min = new double[2];
