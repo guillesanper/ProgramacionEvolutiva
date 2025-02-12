@@ -1,21 +1,14 @@
 package model;
 
-public class IndividuoFuncion5 extends Individuo<Double> {
-    public IndividuoFuncion5(double errorValue) {
-    }
+public class IndividuoFuncion5 extends IndividuoDouble {
+    public IndividuoFuncion5() {
+        super(1);
 
-    @Override
-    public double[] getPhenotypes() {
-        return new double[0];
+        this.initGens(null, null);
     }
 
     @Override
     public double getFitness() {
         return 0;
-    }
-
-    @Override
-    public void mutate(double p) {
-
     }
 }

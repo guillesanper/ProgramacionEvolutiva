@@ -1,6 +1,9 @@
 package model;
 
+import java.util.Random;
+
 public abstract class Individuo<T> {
+    protected Random rand ;
 
     public T[] chromosome;
 
@@ -9,7 +12,6 @@ public abstract class Individuo<T> {
     public int numGens;
 
     public double fitness;
-
 
     public abstract double getPhenotype(int n);
 
