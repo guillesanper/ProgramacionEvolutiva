@@ -13,11 +13,13 @@ public class Valores {
     public int funcion_idx;
     public int num_genes;
     public int elitismo;
+    public boolean min;
+    public int dimension;
 
 
     public Valores(int populationSize, int generations, String selectionType,
                    int cruce_idx, double prob_cruce, int mut_idx, double prob_mut,
-                   double precision, int funcion_idx, int num_genes, int elitismo) {
+                   double precision, int funcion_idx, int num_genes, int elitismo,int dimension) {
 
         this.populationSize = populationSize;
         this.generations = generations;
@@ -30,5 +32,6 @@ public class Valores {
         this.funcion_idx = funcion_idx;
         this.num_genes = num_genes;
         this.elitismo = elitismo;
+        this.dimension = dimension;
     }
 }
