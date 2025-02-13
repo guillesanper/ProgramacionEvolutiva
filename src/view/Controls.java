@@ -40,7 +40,7 @@ public class Controls extends JPanel {
     private JComboBox<String> seleccion_CBox;
     private JComboBox<String> cruce_CBox;
     private JComboBox<String> mutacion_CBox;
-    private JSpinner genes_spinner;
+    private JSpinner dimensionSpinner;
     private JTextArea text_area;
     private Plot2DPanel plot2D;
     private Valores valores;
@@ -50,40 +50,40 @@ public class Controls extends JPanel {
      * Constructor de la clase.
      */
     public Controls() {
-        this.tam_poblacion	=new JTextField("100", 15);
-        this.generaciones 	=new JTextField("100", 15);
-        this.prob_cruce 	=new JTextField("0.6", 15);
-        this.prob_mut 		=new JTextField("0.05", 15);
-        this.precision 		=new JTextField("0.001", 15);
-        this.elitismo 		=new JTextField("0", 15);
-        this.genes_spinner 	=new JSpinner();
+        this.tam_poblacion = new JTextField("100", 15);
+        this.generaciones = new JTextField("100", 15);
+        this.prob_cruce = new JTextField("0.6", 15);
+        this.prob_mut = new JTextField("0.05", 15);
+        this.precision = new JTextField("0.001", 15);
+        this.elitismo = new JTextField("0", 15);
+        this.dimensionSpinner = new JSpinner();
 
 
-        AG=new AlgoritmoGenetico(this);
+        AG = new AlgoritmoGenetico(this);
 
         init_GUI();
     }
 
     private void init_GUI() {
         setLayout(new BorderLayout());
-        JPanel leftPanel =crea_panel_izquiedo();
-        JPanel rightPanel=crea_panel_derecho();
+        JPanel leftPanel = crea_panel_izquiedo();
+        JPanel rightPanel = crea_panel_derecho();
         add(leftPanel, BorderLayout.WEST);
         add(rightPanel, BorderLayout.CENTER);
     }
 
     private JPanel crea_panel_izquiedo() {
-        JPanel leftPanel=new JPanel(new GridBagLayout());
+        JPanel leftPanel = new JPanel(new GridBagLayout());
         leftPanel.setPreferredSize(new Dimension(335, 600));
-        GridBagConstraints gbc=new GridBagConstraints();
+        GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10); // Más separación
-        String[] funciones={"F1: Calibracion y Prueba",
+        String[] funciones = {"F1: Calibracion y Prueba",
                 "F2: Mishra Bird",
                 "F3: Holder table",
                 "F4: Michalewicz (Binaria)",
                 "F5: Michalewicz (Real)"
         };
-        String[] seleccion={"Ruleta",
+        String[] seleccion = {"Ruleta",
                 "Torneo Deterministico",
                 "Torneo Probabilistico",
                 "Estocastico Universal",
@@ -91,37 +91,37 @@ public class Controls extends JPanel {
                 "Ranking",
                 "Restos",
         };
-        String[] cruce={"Mono-Punto",
+        String[] cruce = {"Mono-Punto",
                 "Uniforme"};
-        String[] mutacion = { "Básica"};
+        String[] mutacion = {"Básica"};
 
-        funcion_CBox	=new JComboBox<>(funciones);
-        seleccion_CBox	=new JComboBox<>(seleccion);
-        cruce_CBox		=new JComboBox<>(cruce);
-        mutacion_CBox	=new JComboBox<>(mutacion);
+        funcion_CBox = new JComboBox<>(funciones);
+        seleccion_CBox = new JComboBox<>(seleccion);
+        cruce_CBox = new JComboBox<>(cruce);
+        mutacion_CBox = new JComboBox<>(mutacion);
 
-        text_area=new JTextArea(2, 2);
+        text_area = new JTextArea(2, 2);
         text_area.append("Esperando una ejecucion...");
         text_area.setPreferredSize(new Dimension(300, 100));
         SpinnerNumberModel spinnerModel = new SpinnerNumberModel(2, 1, 10, 1);
-        genes_spinner.setModel(spinnerModel);
-        run_button=new JButton();
+        dimensionSpinner.setModel(spinnerModel);
+        run_button = new JButton();
         run_button.setToolTipText("Run button");
-        ImageIcon icon = load_image("icons/run.png",20,20);
+        ImageIcon icon = load_image("icons/run.png", 20, 20);
 
         run_button.setIcon(icon);
         run_button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int tmp=Integer.parseInt(elitismo.getText());
-                if(tmp<0||tmp>100) actualiza_fallo("Elitismo porcentaje");
+                int tmp = Integer.parseInt(elitismo.getText());
+                if (tmp < 0 || tmp > 100) actualiza_fallo("Elitismo porcentaje");
                 else run();
             }
         });
 
-        gbc.anchor=GridBagConstraints.WEST;
-        gbc.gridx=0;
-        gbc.gridy=0;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
 
         leftPanel.add(new JLabel("  Tam. Poblacion:"), gbc);
         gbc.gridy++;
@@ -144,13 +144,13 @@ public class Controls extends JPanel {
         leftPanel.add(new JLabel("  d:"), gbc);
         gbc.gridy++;
         leftPanel.add(new JLabel("  Elitismo:"), gbc);
-        gbc.anchor=GridBagConstraints.EAST;
+        gbc.anchor = GridBagConstraints.EAST;
         gbc.gridy++;
         leftPanel.add(new JLabel("Valor optimo:  "), gbc);
-        gbc.anchor=GridBagConstraints.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
 
         gbc.gridx++;
-        gbc.gridy=0;
+        gbc.gridy = 0;
         gbc.fill = GridBagConstraints.HORIZONTAL; // Hace que ocupen todo el ancho disponible
         gbc.weightx = 1.0; // Permite que se expandan horizontalmente
 
@@ -173,13 +173,13 @@ public class Controls extends JPanel {
         gbc.gridy++;
         leftPanel.add(funcion_CBox, gbc);
         gbc.gridy++;
-        leftPanel.add(genes_spinner, gbc);
+        leftPanel.add(dimensionSpinner, gbc);
         gbc.gridy++;
         leftPanel.add(elitismo, gbc);
         gbc.gridy++;
         leftPanel.add(text_area, gbc);
 
-        gbc.anchor=GridBagConstraints.SOUTH;
+        gbc.anchor = GridBagConstraints.SOUTH;
         gbc.gridy++;
         leftPanel.add(run_button, gbc);
 
@@ -188,17 +188,17 @@ public class Controls extends JPanel {
 
 
     private JPanel crea_panel_derecho() {
-        JPanel rightPanel=new JPanel(new GridBagLayout());
+        JPanel rightPanel = new JPanel(new GridBagLayout());
         rightPanel.setPreferredSize(new Dimension(465, 600));
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx=0;
-        gbc.gridy=0;
-        gbc.weightx=1.0;
-        gbc.weighty=1.0;
-        gbc.fill=GridBagConstraints.BOTH;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.fill = GridBagConstraints.BOTH;
 
         // Inicializa el grafico del panel.
-        plot2D=new Plot2DPanel();
+        plot2D = new Plot2DPanel();
         // Añade los nombres de los ejes.
         plot2D.getAxis(0).setLabelText("Generacion");
         plot2D.getAxis(1).setLabelText("Fitness");
@@ -211,8 +211,8 @@ public class Controls extends JPanel {
     public void actualiza_grafico(double[][] vals, Pair<Double, Double> interval, Individuo mejor_ind) {
         plot2D.removeAllPlots();
 
-        double[] x=new double[vals[0].length];
-        for (int i=0;i<vals[0].length;i++) x[i]=i;
+        double[] x = new double[vals[0].length];
+        for (int i = 0; i < vals[0].length; i++) x[i] = i;
 
         plot2D.addLinePlot("Mejor Absoluto", x, vals[0]);
         plot2D.addLinePlot("Mejor de la Generacion", x, vals[1]);
@@ -225,10 +225,10 @@ public class Controls extends JPanel {
 
         plot2D.addLegend("SOUTH");
 
-        String texto_salida="Fitness: "+mejor_ind.fitness+"\n";
-        int cont=1;
-        for(double cromosoma: mejor_ind.getPhenotypes()) {
-            texto_salida+="Variable "+(cont++)+": "+cromosoma + "\n";
+        String texto_salida = "Fitness: " + mejor_ind.fitness + "\n";
+        int cont = 1;
+        for (double cromosoma : mejor_ind.getPhenotypes()) {
+            texto_salida += "Variable " + (cont++) + ": " + cromosoma + "\n";
         }
 
         text_area.setText(texto_salida);
@@ -241,17 +241,16 @@ public class Controls extends JPanel {
     }
 
     private void run() {
-        set_valores();
+        setValues();
         AG.ejecuta(valores);
     }
 
 
-
-    protected ImageIcon load_image(String path,int width,int height) {
+    protected ImageIcon load_image(String path, int width, int height) {
         return new ImageIcon(Toolkit.getDefaultToolkit().createImage(path).getScaledInstance(width, height, Image.SCALE_SMOOTH));
     }
 
-    private void set_valores() {
+    private void setValues() {
         valores = new Valores(Integer.parseInt(tam_poblacion.getText()),
                 Integer.parseInt(generaciones.getText()),
                 (String) seleccion_CBox.getSelectedItem(),
@@ -261,10 +260,14 @@ public class Controls extends JPanel {
                 Double.parseDouble(prob_mut.getText()),
                 Double.parseDouble(precision.getText()),
                 funcion_CBox.getSelectedIndex(),
-                (int) genes_spinner.getValue(),
-                Integer.parseInt(elitismo.getText()));
+                (int) dimensionSpinner.getValue(),
+                Integer.parseInt(elitismo.getText()),-1
+                );
+
     }
 
-    public Valores get_valores() { return valores; }
+    public Valores get_valores() {
+        return valores;
+    }
 
 }
