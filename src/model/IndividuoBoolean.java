@@ -3,7 +3,6 @@ package model;
 import java.util.Random;
 
 public abstract class IndividuoBoolean extends Individuo<Boolean> {
-    protected final Random rand ;
     public double[] min;
     public double[] max;
     public double errorValue;
