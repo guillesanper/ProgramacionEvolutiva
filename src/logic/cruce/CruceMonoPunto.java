@@ -1,7 +1,5 @@
 package logic.cruce;
 
-import model.Individuo;
-
 import java.util.Random;
 
 public class CruceMonoPunto<T> extends Cruce<T> {
@@ -10,7 +8,7 @@ public class CruceMonoPunto<T> extends Cruce<T> {
     }
 
     @Override
-    public void cruzar(T[] c1, T[] c2) {
+    public void cross(T[] c1, T[] c2) {
         int i = 0;
         T temp;
         Random rand = new Random();

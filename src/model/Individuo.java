@@ -10,7 +10,6 @@ public abstract class Individuo<T> {
 
     public double fitness;
 
-
     public abstract double getPhenotype(int n);
 
     public abstract double getFitness();

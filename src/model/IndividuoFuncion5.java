@@ -10,6 +10,11 @@ public class IndividuoFuncion5 extends Individuo<Double> {
     }
 
     @Override
+    public double getPhenotype(int n) {
+        return 0;
+    }
+
+    @Override
     public double getFitness() {
         return 0;
     }

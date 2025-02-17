@@ -28,7 +28,7 @@ public class Controls extends JPanel {
 
     private static final long serialVersionUID = 1L;
 
-    private AlgoritmoGenetico AG;
+    private AlgoritmoGenetico algoritmoGenetico;
     private JButton run_button;
     private JTextField tam_poblacion;
     private JTextField generaciones;
@@ -57,9 +57,6 @@ public class Controls extends JPanel {
         this.precision = new JTextField("0.001", 15);
         this.elitismo = new JTextField("0", 15);
         this.dimensionSpinner = new JSpinner();
-
-
-        AG = new AlgoritmoGenetico(this);
 
         init_GUI();
     }
@@ -105,10 +102,19 @@ public class Controls extends JPanel {
         text_area.setPreferredSize(new Dimension(300, 100));
         SpinnerNumberModel spinnerModel = new SpinnerNumberModel(2, 1, 10, 1);
         dimensionSpinner.setModel(spinnerModel);
+        dimensionSpinner.setEnabled(false);
+
+        funcion_CBox.addItemListener(e -> {
+            if (e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+                int selectedIndex = funcion_CBox.getSelectedIndex();
+                dimensionSpinner.setEnabled(selectedIndex == 3 || selectedIndex == 4);
+                if(selectedIndex !=3 && selectedIndex!=4)dimensionSpinner.setValue(2);
+            }
+        });
+
         run_button = new JButton();
         run_button.setToolTipText("Run button");
         ImageIcon icon = load_image("icons/run.png", 20, 20);
-
         run_button.setIcon(icon);
         run_button.addActionListener(new ActionListener() {
             @Override
@@ -242,7 +248,12 @@ public class Controls extends JPanel {
 
     private void run() {
         setValues();
-        AG.ejecuta(valores);
+        if(this.funcion_CBox.getSelectedIndex() == 4)
+            algoritmoGenetico = new AlgoritmoGenetico<Double>(this);
+        else
+            algoritmoGenetico = new AlgoritmoGenetico<Boolean>(this);
+
+        algoritmoGenetico.ejecuta(valores);
     }
 
 
@@ -254,16 +265,14 @@ public class Controls extends JPanel {
         valores = new Valores(Integer.parseInt(tam_poblacion.getText()),
                 Integer.parseInt(generaciones.getText()),
                 (String) seleccion_CBox.getSelectedItem(),
-                cruce_CBox.getSelectedIndex(),
+                (String) cruce_CBox.getSelectedItem(),
                 Double.parseDouble(prob_cruce.getText()),
                 mutacion_CBox.getSelectedIndex(),
                 Double.parseDouble(prob_mut.getText()),
                 Double.parseDouble(precision.getText()),
                 funcion_CBox.getSelectedIndex(),
-                (int) dimensionSpinner.getValue(),
-                Integer.parseInt(elitismo.getText()),-1
-                );
-
+                Integer.parseInt(elitismo.getText()),
+                (int) dimensionSpinner.getValue());
     }
 
     public Valores get_valores() {
