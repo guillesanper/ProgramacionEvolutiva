@@ -5,32 +5,29 @@ public class Valores {
     public int populationSize;
     public int generations;
     public String selectionType;
-    public int cruce_idx;
+    public String cross_type;
     public double prob_cruce;
     public int mut_idx;
     public double prob_mut;
     public double precision;
     public int funcion_idx;
-    public int num_genes;
     public int elitismo;
-    public boolean min;
     public int dimension;
 
 
     public Valores(int populationSize, int generations, String selectionType,
-                   int cruce_idx, double prob_cruce, int mut_idx, double prob_mut,
-                   double precision, int funcion_idx, int num_genes, int elitismo,int dimension) {
+                   String cross_type, double prob_cruce, int mut_idx, double prob_mut,
+                   double precision, int funcion_idx, int elitismo, int dimension) {
 
         this.populationSize = populationSize;
         this.generations = generations;
         this.selectionType = selectionType;
-        this.cruce_idx = cruce_idx;
+        this.cross_type = cross_type;
         this.prob_cruce = prob_cruce;
         this.mut_idx = mut_idx;
         this.prob_mut = prob_mut;
         this.precision = precision;
         this.funcion_idx = funcion_idx;
-        this.num_genes = num_genes;
         this.elitismo = elitismo;
         this.dimension = dimension;
     }
