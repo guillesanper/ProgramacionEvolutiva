@@ -6,16 +6,21 @@ import logic.mutacion.Mutacion;
 import logic.seleccion.Seleccion;
 import logic.seleccion.SeleccionFactory;
 import model.Individuo;
+import model.IndividuoBoolean;
+import model.IndividuoDouble;
 import model.Valores;
 import model.factoria.IndividuoFactory;
 import utils.NodoIndividuo;
+import utils.Pair;
 import view.Controls;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.PriorityQueue;
 
 public class AlgoritmoGenetico<T> {
 
-    private Individuo<T>[] population, elite;
+    private Individuo<T>[] population;
     private double[] fitness;
     private double totalFitness;
     private int populationSize;
@@ -48,12 +53,15 @@ public class AlgoritmoGenetico<T> {
     private int currentGeneration;
     private double[][] generationProgress;
     private double totalBest;
+    private Pair<Double,Double> graphIntervals;
 
     private final Controls controlPanel;
+
 
     public AlgoritmoGenetico(Controls controlPanel) {
         this.controlPanel = controlPanel;
     }
+
 
     public void ejecuta(Valores valores) {
         int[] selec;
@@ -64,6 +72,12 @@ public class AlgoritmoGenetico<T> {
 
         initialize_population(funcIndex, errorValue);
 
+
+        Comparator<NodoIndividuo> comparator= Comparator.comparingDouble(NodoIndividuo::getValue);
+        if(funcIndex!=0)
+            elitQ=new PriorityQueue<>(Collections.reverseOrder(comparator));
+        else elitQ=new PriorityQueue<>(comparator);
+
         this.selection = SeleccionFactory.getMetodoSeleccion(selectionType, fitness, populationSize, isMin(), best.getFitness());
         this.cross = (Cruce<T>) CruceFactory.getCruceType(crossType, isFunc5(), dimension);
         this.mutacion = new Mutacion(probMutacion, eliteSize);
@@ -72,8 +86,33 @@ public class AlgoritmoGenetico<T> {
         generationProgress = new double[3][generations + 1];
         currentGeneration = 0;
 
-        selec = selection.getSeleccion();
+        evaluate_population();
 
+        while (generations-- != 0) {
+            // Seleccion
+            selec = selection.getSeleccion();
+
+            // Cruce
+            cross_population(selec);
+
+            // Mutación
+            mutacion.mut_population(population);
+
+            // elitism
+            while(elitQ.size()!=0) {
+                population[populationSize-elitQ.size()]=elitQ.poll().getIndividuo();
+            }
+
+            // Evaluamos poblacion
+            evaluate_population();
+        }
+
+        controlPanel.update_graph(generationProgress,graphIntervals,best);
+    }
+
+
+
+    private void cross_population(int[] selec){
         // **Crear copia de la población antes del cruce**
         Individuo<T>[] populationCopy = copyPopulation();
 
@@ -83,11 +122,6 @@ public class AlgoritmoGenetico<T> {
         }
 
         this.population = populationCopy;
-
-        // Mutación
-        for (int i = 0; i < populationSize; i++) {
-            population[i].mutate(probMutacion);
-        }
     }
 
     /**
@@ -105,9 +139,9 @@ public class AlgoritmoGenetico<T> {
     private void evaluate_population() {
         totalFitness = 0;
 
-        double best_gen = isMin() ? Double.MIN_VALUE : Double.MAX_VALUE;
-        double worst_gen = isMin() ? Double.MIN_VALUE : Double.MAX_VALUE;
-        Individuo<T> bestGenInd = null;
+        double best_gen = !isMin() ? Double.MIN_VALUE : Double.MAX_VALUE;
+        double worst_gen = population[1].fitness;
+        Individuo<T> bestGenInd = population[0];
 
         double fit;
         for (int i = 0; i < populationSize; i++) {
@@ -138,9 +172,9 @@ public class AlgoritmoGenetico<T> {
         }
 
         // Actualizamos las variables para la grafica
-        generationProgress[0][currentGeneration] = totalBest;
-        generationProgress[1][currentGeneration] = best_gen;
-        generationProgress[2][currentGeneration++] = totalFitness / populationSize;
+        generationProgress[0][currentGeneration] = totalBest;   // Mejor total
+        generationProgress[1][currentGeneration] = best_gen;    // Mejor de la generacion
+        generationProgress[2][currentGeneration++] = totalFitness / populationSize; //Media
 
         //  TODO Desplazamiento para eliminar fitness negativos aqui o en metodo de seleccion
         double acum = 0;
@@ -149,7 +183,6 @@ public class AlgoritmoGenetico<T> {
 
     /**
      * Compara el individuo evaluado con el peor de los mejores y si es mejor lo sustituye
-     *
      */
     private void compareAndReplaceElite(double newFitness, Individuo<T> newInd) {
         // Obtener el peor de la cola (depende del criterio de comparación)
@@ -163,8 +196,8 @@ public class AlgoritmoGenetico<T> {
 
     /**
      * Compara dos valores de fitness según el tipo de optimización (minimización o maximización).
-     *
-     *  true si f1 es mejor que f2, según la función.
+     * <p>
+     * true si f1 es mejor que f2, según la función.
      */
     private boolean compare(double f1, double f2) {
         return isMin() ? (f1 < f2) : (f1 > f2);
@@ -180,10 +213,14 @@ public class AlgoritmoGenetico<T> {
 
     private void initialize_population(int func_index, double errorValue) {
         this.population = new Individuo[populationSize];
-        this.best = (Individuo<T>) IndividuoFactory.createIndividuo(func_index, errorValue, dimension);
+        this.fitness = new double[populationSize];
         for (int i = 0; i < this.populationSize; i++) {
             this.population[i] = (Individuo<T>) IndividuoFactory.createIndividuo(func_index, this.errorValue, dimension);
+            this.fitness[i] = this.population[i].getFitness();
         }
+        this.best = this.population[0];
+        this.totalBest = best.fitness;
+        this.graphIntervals = IndividuoFactory.getInterval(funcIndex);
     }
 
     private void setValues(Valores valores) {
@@ -204,7 +241,7 @@ public class AlgoritmoGenetico<T> {
     private boolean comprueba_valores() {
         if (funcIndex != 4) {
             if (funcIndex == 2) {
-                controlPanel.actualiza_fallo("No hay Cruce\n- Aritmetico\nen individuos Binarios");
+                controlPanel.update_error("No hay Cruce\n- Aritmetico\nen individuos Binarios");
                 return false;
             }
         }

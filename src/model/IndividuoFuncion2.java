@@ -22,4 +22,5 @@ public class IndividuoFuncion2 extends IndividuoBoolean {
                 Math.cos(x1)*Math.pow(exp2, 2) +
                 Math.pow(x1-x2, 2);
     }
+
 }

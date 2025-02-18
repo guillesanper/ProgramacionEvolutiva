@@ -78,4 +78,5 @@ public abstract class IndividuoBoolean extends Individuo<Boolean> {
             }
         }
     }
+
 }

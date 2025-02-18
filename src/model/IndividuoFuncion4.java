@@ -21,6 +21,7 @@ public class IndividuoFuncion4 extends IndividuoBoolean {
         this.initGens(mins, maxs);
     }
 
+
     @Override
     public double getFitness() {
         double sum = 0;
