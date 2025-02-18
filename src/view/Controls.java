@@ -120,7 +120,7 @@ public class Controls extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int tmp = Integer.parseInt(elitismo.getText());
-                if (tmp < 0 || tmp > 100) actualiza_fallo("Elitismo porcentaje");
+                if (tmp < 0 || tmp > 100) update_error("Elitismo porcentaje");
                 else run();
             }
         });
@@ -214,7 +214,7 @@ public class Controls extends JPanel {
         return rightPanel;
     }
 
-    public void actualiza_grafico(double[][] vals, Pair<Double, Double> interval, Individuo mejor_ind) {
+    public void update_graph(double[][] vals, Pair<Double, Double> interval, Individuo mejor_ind) {
         plot2D.removeAllPlots();
 
         double[] x = new double[vals[0].length];
@@ -231,7 +231,7 @@ public class Controls extends JPanel {
 
         plot2D.addLegend("SOUTH");
 
-        String texto_salida = "Fitness: " + mejor_ind.fitness + "\n";
+        String texto_salida = "Fitness: " +  mejor_ind.fitness + "\n";
         int cont = 1;
         for (double cromosoma : mejor_ind.getPhenotypes()) {
             texto_salida += "Variable " + (cont++) + ": " + cromosoma + "\n";
@@ -241,7 +241,7 @@ public class Controls extends JPanel {
 
     }
 
-    public void actualiza_fallo(String s) {
+    public void update_error(String s) {
         plot2D.removeAllPlots();
         text_area.setText(s);
     }
