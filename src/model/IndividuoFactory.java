@@ -1,6 +1,5 @@
-package model.factoria;
+package model;
 
-import model.*;
 import utils.Pair;
 
 public class IndividuoFactory {

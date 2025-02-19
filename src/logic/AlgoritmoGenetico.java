@@ -6,10 +6,8 @@ import logic.mutacion.Mutacion;
 import logic.seleccion.Seleccion;
 import logic.seleccion.SeleccionFactory;
 import model.Individuo;
-import model.IndividuoBoolean;
-import model.IndividuoDouble;
 import model.Valores;
-import model.factoria.IndividuoFactory;
+import model.IndividuoFactory;
 import utils.NodoIndividuo;
 import utils.Pair;
 import view.Controls;
@@ -39,7 +37,6 @@ public class AlgoritmoGenetico<T> {
     private Mutacion mutacion;
     private int funcIndex;
 
-    private double aptitudMedia;
     private double errorValue;
     private int dimension;
 
@@ -107,7 +104,7 @@ public class AlgoritmoGenetico<T> {
             evaluate_population();
         }
 
-        controlPanel.update_graph(generationProgress,graphIntervals,best);
+        controlPanel.update_graph(generationProgress,graphIntervals,best,true);
     }
 
 
@@ -153,7 +150,7 @@ public class AlgoritmoGenetico<T> {
             if (elitQ.size() < eliteSize)
                 elitQ.add(new NodoIndividuo(fit, population[i]));
             else if (eliteSize != 0) {
-                compareAndReplaceElite(fit, population[i]);
+                compareAndReplaceElite(population[i]);
             }
 
             //Actualizamos mejor o peor de la generacion si es necesario
@@ -184,13 +181,13 @@ public class AlgoritmoGenetico<T> {
     /**
      * Compara el individuo evaluado con el peor de los mejores y si es mejor lo sustituye
      */
-    private void compareAndReplaceElite(double newFitness, Individuo<T> newInd) {
+    private void compareAndReplaceElite( Individuo<T> newInd) {
         // Obtener el peor de la cola (depende del criterio de comparación)
         NodoIndividuo worstElite = elitQ.peek();
 
-        if (worstElite != null && compare(newFitness, worstElite.getValue())) {
+        if (worstElite != null && compare(newInd.getFitness(), worstElite.getValue())) {
             elitQ.poll(); // Eliminar el peor
-            elitQ.add(new NodoIndividuo(newFitness, newInd)); // Insertar el nuevo
+            elitQ.add(new NodoIndividuo(newInd.getFitness(), newInd)); // Insertar el nuevo
         }
     }
 
@@ -219,7 +216,7 @@ public class AlgoritmoGenetico<T> {
             this.fitness[i] = this.population[i].getFitness();
         }
         this.best = this.population[0];
-        this.totalBest = best.fitness;
+        this.totalBest = best.getFitness();
         this.graphIntervals = IndividuoFactory.getInterval(funcIndex);
     }
 

@@ -9,19 +9,13 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.SpinnerNumberModel;
+import javax.swing.*;
 
 import logic.AlgoritmoGenetico;
 import model.Individuo;
 import model.Valores;
+import utils.HistoryGraphic;
+import utils.HistoryState;
 import utils.Pair;
 
 public class Controls extends JPanel {
@@ -44,6 +38,11 @@ public class Controls extends JPanel {
     private JTextArea text_area;
     private Plot2DPanel plot2D;
     private Valores valores;
+    private Plot2DPanel plotHistory;
+    private JButton undoButton;
+    private JButton redoButton;
+    private HistoryGraphic historyGraphic;
+    private JTextArea historyTextArea;
 
 
     /**
@@ -57,6 +56,7 @@ public class Controls extends JPanel {
         this.precision = new JTextField("0.001", 15);
         this.elitismo = new JTextField("0", 15);
         this.dimensionSpinner = new JSpinner();
+        this.historyGraphic = new HistoryGraphic();
 
         init_GUI();
     }
@@ -64,9 +64,11 @@ public class Controls extends JPanel {
     private void init_GUI() {
         setLayout(new BorderLayout());
         JPanel leftPanel = crea_panel_izquiedo();
-        JPanel rightPanel = crea_panel_derecho();
+        JPanel mediumPanel = crea_panel_derecho();
+        JPanel historyPanel = crea_panel_historial();
         add(leftPanel, BorderLayout.WEST);
-        add(rightPanel, BorderLayout.CENTER);
+        add(mediumPanel, BorderLayout.CENTER);
+        add(historyPanel, BorderLayout.EAST);
     }
 
     private JPanel crea_panel_izquiedo() {
@@ -108,7 +110,7 @@ public class Controls extends JPanel {
             if (e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
                 int selectedIndex = funcion_CBox.getSelectedIndex();
                 dimensionSpinner.setEnabled(selectedIndex == 3 || selectedIndex == 4);
-                if(selectedIndex !=3 && selectedIndex!=4)dimensionSpinner.setValue(2);
+                if (selectedIndex != 3 && selectedIndex != 4) dimensionSpinner.setValue(2);
             }
         });
 
@@ -205,6 +207,7 @@ public class Controls extends JPanel {
 
         // Inicializa el grafico del panel.
         plot2D = new Plot2DPanel();
+
         // Añade los nombres de los ejes.
         plot2D.getAxis(0).setLabelText("Generacion");
         plot2D.getAxis(1).setLabelText("Fitness");
@@ -214,7 +217,7 @@ public class Controls extends JPanel {
         return rightPanel;
     }
 
-    public void update_graph(double[][] vals, Pair<Double, Double> interval, Individuo mejor_ind) {
+    public void update_graph(double[][] vals, Pair<Double, Double> interval, Individuo best, boolean save) {
         plot2D.removeAllPlots();
 
         double[] x = new double[vals[0].length];
@@ -231,13 +234,16 @@ public class Controls extends JPanel {
 
         plot2D.addLegend("SOUTH");
 
-        String texto_salida = "Fitness: " +  mejor_ind.fitness + "\n";
+        String texto_salida = "Fitness: " + best.getFitness() + "\n";
         int cont = 1;
-        for (double cromosoma : mejor_ind.getPhenotypes()) {
+        for (double cromosoma : best.getPhenotypes()) {
             texto_salida += "Variable " + (cont++) + ": " + cromosoma + "\n";
         }
 
         text_area.setText(texto_salida);
+
+        if(save)
+            this.historyGraphic.saveState(new HistoryState(vals, interval, best));
 
     }
 
@@ -248,12 +254,73 @@ public class Controls extends JPanel {
 
     private void run() {
         setValues();
-        if(this.funcion_CBox.getSelectedIndex() == 4)
+        if (this.funcion_CBox.getSelectedIndex() == 4)
             algoritmoGenetico = new AlgoritmoGenetico<Double>(this);
         else
             algoritmoGenetico = new AlgoritmoGenetico<Boolean>(this);
 
         algoritmoGenetico.ejecuta(valores);
+    }
+
+    private JPanel crea_panel_historial() {
+        JPanel historyPanel = new JPanel(new GridBagLayout());
+        historyPanel.setPreferredSize(new Dimension(300, 200));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+
+        JLabel titleLabel = new JLabel("Mejor Individuo");
+        titleLabel.setFont(new Font("Arial", Font.PLAIN, 11));
+        historyPanel.add(titleLabel, gbc);
+
+        gbc.gridy++;
+        historyTextArea = new JTextArea(5, 20);
+        historyTextArea.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(historyTextArea);
+        scrollPane.setPreferredSize(new Dimension(280, 100));
+        historyPanel.add(scrollPane, gbc);
+
+        gbc.gridy++;
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        JButton undoButton = new JButton("Deshacer");
+        JButton redoButton = new JButton("Rehacer");
+
+        undoButton.addActionListener(e -> {
+            if (historyGraphic.undo()) {
+                HistoryState state = historyGraphic.getState();
+                historyTextArea.setText("Mejor Individuo: " + printIndividuo(state.getBest()) + "\n");
+                update_graph(state.getVals(), state.getInterval(), state.getBest(),false);
+                plot2D.revalidate();
+                plot2D.repaint();
+            }
+        });
+
+        redoButton.addActionListener(e -> {
+            if (historyGraphic.redo()) {
+                HistoryState state = historyGraphic.getState();
+                historyTextArea.setText("Mejor Individuo: " +printIndividuo(state.getBest()) + "\n");
+                update_graph(state.getVals(), state.getInterval(), state.getBest(),false);
+            }
+        });
+
+        buttonPanel.add(undoButton);
+        buttonPanel.add(redoButton);
+
+        gbc.gridy++;
+        historyPanel.add(buttonPanel, gbc);
+
+        return historyPanel;
+    }
+
+    private String printIndividuo(Individuo individuo) {
+        String texto_salida = "\nFitness: " + individuo.getFitness() + "\n";
+        int cont = 1;
+        for (double cromosoma : individuo.getPhenotypes()) {
+            texto_salida += "Variable " + (cont++) + ": " + cromosoma + "\n";
+        }
+        return texto_salida;
     }
 
 
