@@ -12,6 +12,7 @@ import utils.NodoIndividuo;
 import utils.Pair;
 import view.Controls;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.PriorityQueue;
@@ -95,6 +96,15 @@ public class AlgoritmoGenetico<T> {
             // Mutación
             mutacion.mut_population(population);
 
+            // Recalcular el mejor después de la mutación
+            for (Individuo<T> ind : population) {
+                if (compare(ind.getFitness(), totalBest)) {
+                    totalBest = ind.getFitness();
+                    best = ind;
+                }
+            }
+
+
             // elitism
             while(elitQ.size()!=0) {
                 population[populationSize-elitQ.size()]=elitQ.poll().getIndividuo();
@@ -107,18 +117,16 @@ public class AlgoritmoGenetico<T> {
         controlPanel.update_graph(generationProgress,graphIntervals,best,true);
     }
 
-
-
     private void cross_population(int[] selec){
         // **Crear copia de la población antes del cruce**
-        Individuo<T>[] populationCopy = copyPopulation();
+        Individuo<T>[] selection = copyPopulation();
 
         // Aplicar cruce en la copia para evitar sobrescribir individuos seleccionados múltiples veces
         for (int i = 0; i < populationSize - 1; i += 2) {
-            reproduce(selec[i], selec[i + 1], populationCopy);
+            reproduce(selec[i], selec[i + 1], selection);
         }
 
-        this.population = populationCopy;
+        this.population = selection;
     }
 
     /**
@@ -128,7 +136,7 @@ public class AlgoritmoGenetico<T> {
         Individuo<T>[] copy = new Individuo[populationSize];
         for (int i = 0; i < populationSize; i++) {
             copy[i] = (Individuo<T>) IndividuoFactory.createIndividuo(funcIndex, errorValue, dimension);
-            copy[i].chromosome = population[i].chromosome;
+            copy[i].chromosome = Arrays.copyOf(population[i].chromosome, population[i].chromosome.length);
         }
         return copy;
     }
@@ -178,6 +186,43 @@ public class AlgoritmoGenetico<T> {
 
     }
 
+    /*private int[] selElite(int numElit) {
+        this.elite = new Individuo[numElit];
+        int temp;
+        int[]posElit = new int[numElit];
+        for(int i = 0; i < numElit; i++) {
+            this.elite[i] = (Individuo<T>) IndividuoFactory.getIndivType(this.ind, this.valErr, this.d);
+            this.elite[i].setCromosoma(this.poblacion[i].getCromosoma());
+            posElit[i] = i;
+        }
+        for(int i = numElit; i < this.tamPoblacion; i++) {
+            temp = 0;
+            for(int j = 1; j < numElit; j++) {
+                if(!this.min) {
+                    if(this.elite[temp].getFitness() < this.elite[j].getFitness())
+                        temp = j;
+                }
+                else {
+                    if(this.elite[temp].getFitness() > this.elite[j].getFitness())
+                        temp = j;
+                }
+            }
+            if(!this.min){
+                if (this.elite[temp].getFitness() < this.poblacion[i].getFitness()) {
+                    this.elite[temp].setCromosoma(this.poblacion[i].getCromosoma());
+                    posElit[temp] = i;
+                }
+            }
+            else {
+                if(this.elite[temp].getFitness() > this.poblacion[i].getFitness()) {
+                    this.elite[temp].setCromosoma(this.poblacion[i].getCromosoma());
+                    posElit[temp] = i;
+                }
+            }
+        }
+        return posElit;
+    }*/
+
     /**
      * Compara el individuo evaluado con el peor de los mejores y si es mejor lo sustituye
      */
@@ -201,8 +246,8 @@ public class AlgoritmoGenetico<T> {
     }
 
     private void reproduce(int pos1, int pos2, Individuo<T>[] populationCopy) {
-        T[] c1 = population[pos1].chromosome;
-        T[] c2 = population[pos2].chromosome;
+        T[] c1 = Arrays.copyOf(population[pos1].chromosome, population[pos1].chromosome.length);
+        T[] c2 = Arrays.copyOf(population[pos2].chromosome, population[pos2].chromosome.length);
         this.cross.cross(c1, c2);
         populationCopy[pos1].chromosome = c1;
         populationCopy[pos2].chromosome = c2;
@@ -216,7 +261,7 @@ public class AlgoritmoGenetico<T> {
             this.fitness[i] = this.population[i].getFitness();
         }
         this.best = this.population[0];
-        this.totalBest = best.getFitness();
+        this.totalBest = isMin() ? Double.MAX_VALUE : Double.MIN_VALUE;
         this.graphIntervals = IndividuoFactory.getInterval(funcIndex);
     }
 
@@ -236,12 +281,7 @@ public class AlgoritmoGenetico<T> {
     }
 
     private boolean comprueba_valores() {
-        if (funcIndex != 4) {
-            if (funcIndex == 2) {
-                controlPanel.update_error("No hay Cruce\n- Aritmetico\nen individuos Binarios");
-                return false;
-            }
-        }
+
         return true;
     }
 
