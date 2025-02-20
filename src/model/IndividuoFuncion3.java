@@ -23,7 +23,7 @@ public class IndividuoFuncion3 extends IndividuoBoolean{
 
     @Override
     public double getFitness() {
-        return calcHalf(this.getPhenotype(0))+calcHalf(this.getPhenotype(1));
+        return calcHalf(this.getPhenotype(0))*calcHalf(this.getPhenotype(1));
     }
 
 }

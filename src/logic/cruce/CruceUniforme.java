@@ -13,7 +13,7 @@ public class CruceUniforme<T> extends Cruce<T>{
             T temp = null;
             Random rand = new Random();
             double x ;
-            for( i = 0; i < this.tamCromosoma; i++) {
+            for( i = 0; i < c1.length; i++) {
                 x = rand.nextDouble();
                 if(x > 0.5) {
                     temp = c1[i];
