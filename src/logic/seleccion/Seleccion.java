@@ -6,20 +6,28 @@ public abstract class Seleccion {
     // Guardamos los indices de los individuos seleccionados en la poblacion
     int[] seleccion;
 
-    // Almacena los valores de fitness de los individuos en la población
-    double[] fitness;
+    Seleccionable[] list;
 
-    // Almacena las probabilidades asociadas a cada individuo
-    double[] probabilidad;
-
-    //Define el tamaño de la poblacion
+    // Define el tamaño de la poblacion
     int tamPoblacion;
 
     // Problema de maximizacion(false) o minimizacion(true)
     boolean min;
 
-    Random rand = new Random();
+    Random rand;
+
+    public Seleccion(Seleccionable[] list, int tamPoblacion, boolean min) {
+        this.seleccion = new int[tamPoblacion];
+        this.list = list;
+
+        this.tamPoblacion = tamPoblacion;
+
+        this.min = min;
+        this.rand = new Random();
+    }
 
     public abstract int[] getSeleccion();
+
+
 
 }

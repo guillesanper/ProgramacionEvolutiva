@@ -2,12 +2,8 @@ package logic.seleccion;
 
 public class SeleccionTorneoDeterministico extends Seleccion{
 
-    public SeleccionTorneoDeterministico(double[] fitness, int tamPoblacion, boolean min) {
-        this.fitness = fitness;
-        this.min = min;
-        this.tamPoblacion = tamPoblacion;
-        this.probabilidad = new double[this.tamPoblacion];
-        this.seleccion = new int[this.tamPoblacion];
+    public SeleccionTorneoDeterministico(Seleccionable[] list, int tamPoblacion, boolean min) {
+        super(list, tamPoblacion, min);
     }
 
     @Override
@@ -15,13 +11,13 @@ public class SeleccionTorneoDeterministico extends Seleccion{
         if(!this.min) {
             for(int i = 0; i < this.tamPoblacion; i++) {
                 int ind1 = this.rand.nextInt(this.tamPoblacion), ind2 = this.rand.nextInt(this.tamPoblacion), ind3 = this.rand.nextInt(this.tamPoblacion);
-                if(this.fitness[ind1] < this.fitness[ind2])
-                    if(this.fitness[ind2] < this.fitness[ind3])
+                if(this.list[ind1].getFitness() < this.list[ind2].getFitness())
+                    if(this.list[ind2].getFitness() < this.list[ind3].getFitness())
                         this.seleccion[i] = ind3;
                     else
                         this.seleccion[i] = ind2;
                 else
-                if(this.fitness[ind1] < this.fitness[ind3])
+                if(this.list[ind1].getFitness() < this.list[ind3].getFitness())
                     this.seleccion[i] = ind3;
                 else
                     this.seleccion[i] = ind1;
@@ -29,14 +25,17 @@ public class SeleccionTorneoDeterministico extends Seleccion{
         }
         else {
             for(int i = 0; i < this.tamPoblacion; i++) {
-                int ind1 = this.rand.nextInt(this.tamPoblacion), ind2 = this.rand.nextInt(this.tamPoblacion), ind3 = this.rand.nextInt(this.tamPoblacion);
-                if(this.fitness[ind1] > this.fitness[ind2])
-                    if(this.fitness[ind2] > this.fitness[ind3])
+                int ind1 = this.rand.nextInt(this.tamPoblacion);
+                int ind2 = this.rand.nextInt(this.tamPoblacion);
+                int ind3 = this.rand.nextInt(this.tamPoblacion);
+
+                if(this.list[ind1].getFitness() > this.list[ind2].getFitness())
+                    if(this.list[ind2].getFitness() > this.list[ind3].getFitness())
                         this.seleccion[i] = ind3;
                     else
                         this.seleccion[i] = ind2;
                 else
-                if(this.fitness[ind1] > this.fitness[ind3])
+                if(this.list[ind1].getFitness() > this.list[ind3].getFitness())
                     this.seleccion[i] = ind3;
                 else
                     this.seleccion[i] = ind1;
