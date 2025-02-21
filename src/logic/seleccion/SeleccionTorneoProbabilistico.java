@@ -3,9 +3,9 @@ package logic.seleccion;
 public class SeleccionTorneoProbabilistico extends Seleccion {
 
     private final double p;
-
-    public SeleccionTorneoProbabilistico(boolean min) {
-        super(min);
+    private final boolean min;
+    public SeleccionTorneoProbabilistico() {
+        this.min = false;
         this.p = 0.5;
     }
 

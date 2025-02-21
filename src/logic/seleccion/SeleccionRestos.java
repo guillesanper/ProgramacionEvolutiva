@@ -1,11 +1,6 @@
 package logic.seleccion;
 
 public class SeleccionRestos extends Seleccion{
-
-    public SeleccionRestos(boolean min) {
-        super(min);
-    }
-
     @Override
     public int[] getSeleccion(Seleccionable[] list, int tamPoblacion) {
         int[] seleccion = new int[tamPoblacion];
@@ -24,7 +19,7 @@ public class SeleccionRestos extends Seleccion{
         if (metidos != tamPoblacion) {
 
             int[] nuevaSeleccion = SeleccionFactory.getMetodoSeleccion(
-                    "Torneo Deterministico", min, 0
+                    "Torneo Deterministico", 0
             ).getSeleccion(list, tamPoblacion-metidos);
 
             for (int i = 0; i < tamPoblacion-metidos; i++) seleccion[metidos+i] = nuevaSeleccion[i];

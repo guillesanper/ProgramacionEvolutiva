@@ -7,8 +7,7 @@ public class SeleccionTruncamiento extends Seleccion {
 
     private final double trunc; // Proporción de la población seleccionada (ej. 0.5 o 0.1)
 
-    public SeleccionTruncamiento(boolean min, double trunc) {
-        super(min);
+    public SeleccionTruncamiento(double trunc) {
         this.trunc = trunc;
     }
 
@@ -35,7 +34,7 @@ public class SeleccionTruncamiento extends Seleccion {
         // Ordenar índices por fitness (ascendente si minimizamos, descendente si maximizamos)
         return IntStream.range(0, tamPoblacion)
                 .boxed()
-                .sorted(Comparator.comparingDouble(i -> min ? list[i].getFitness() : -1*list[i].getFitness())) // Ordena por fitness
+                .sorted(Comparator.comparingDouble(i -> -1*list[i].getFitness())) // Ordena por fitness
                 .mapToInt(i -> i)
                 .toArray();
     }

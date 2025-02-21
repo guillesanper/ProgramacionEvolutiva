@@ -3,10 +3,6 @@ package logic.seleccion;
 import java.util.Arrays;
 
 public class SeleccionRanking extends Seleccion{
-    public SeleccionRanking(boolean min) {
-        super(min);
-    }
-
     private void calculateProbs(Seleccionable[] sortedList, int tamPoblacion) {
         double _beta = 1.5;
 
@@ -34,7 +30,7 @@ public class SeleccionRanking extends Seleccion{
         this.calculateProbs(sortedList, tamPoblacion);
 
        return SeleccionFactory
-               .getMetodoSeleccion("Ruleta", min, 0)
+               .getMetodoSeleccion("Ruleta", 0)
                .getSeleccion(sortedList, tamPoblacion);
     }
 }

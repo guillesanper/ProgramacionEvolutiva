@@ -1,10 +1,6 @@
 package logic.seleccion;
 
 public class SeleccionRuleta extends Seleccion{
-    public SeleccionRuleta (boolean min) {
-        super(min);
-    }
-
     /*
     * Selecciona individuos basándose en la ruleta.
     * El primer i donde probAcu[i] sea mayor o igual a x es el individuo seleccionado, se

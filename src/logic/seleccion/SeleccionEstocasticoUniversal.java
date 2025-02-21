@@ -1,11 +1,6 @@
 package logic.seleccion;
 
 public class SeleccionEstocasticoUniversal extends Seleccion{
-
-    public SeleccionEstocasticoUniversal(boolean min) {
-        super(min);
-    }
-
     @Override
     public int[] getSeleccion(Seleccionable[] list, int tamPoblacion) {
         int[] seleccion = new int[tamPoblacion];

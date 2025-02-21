@@ -5,6 +5,7 @@ import logic.cruce.CruceFactory;
 import logic.mutacion.Mutacion;
 import logic.seleccion.Seleccion;
 import logic.seleccion.SeleccionFactory;
+import logic.seleccion.Seleccionable;
 import model.Individuo;
 import model.Valores;
 import model.IndividuoFactory;
@@ -19,7 +20,6 @@ import java.util.PriorityQueue;
 public class AlgoritmoGenetico<T> {
 
     private Individuo<T>[] population;
-    private double[] fitness;
     private double totalFitness;
     private int populationSize;
 
@@ -31,6 +31,7 @@ public class AlgoritmoGenetico<T> {
     private int generations;
 
     private Seleccion selection;
+    private Seleccionable[] seleccionables;
     private String selectionType;
     private Cruce<T> cross;
     private String crossType;
@@ -75,7 +76,9 @@ public class AlgoritmoGenetico<T> {
             elitQ=new PriorityQueue<>(Collections.reverseOrder(comparator));
         else elitQ=new PriorityQueue<>(comparator);
 
-        this.selection = SeleccionFactory.getMetodoSeleccion(selectionType, fitness, populationSize, isMin(), best.getFitness());
+        this.selection = SeleccionFactory.getMetodoSeleccion(selectionType, best.getFitness());
+        this.seleccionables = new Seleccionable[this.populationSize];
+
         this.cross = (Cruce<T>) CruceFactory.getCruceType(crossType, isFunc5(), dimension);
         this.mutacion = new Mutacion(probMutacion, eliteSize);
 
@@ -87,7 +90,7 @@ public class AlgoritmoGenetico<T> {
 
         while (generations-- != 0) {
             // Seleccion
-            selec = selection.getSeleccion();
+            selec = this.select();
 
             // Cruce
             cross_population(selec);
@@ -200,6 +203,37 @@ public class AlgoritmoGenetico<T> {
         return isMin() ? (f1 < f2) : (f1 > f2);
     }
 
+    private int[] select() {
+        double fmax = this.population[0].getFitness();
+        boolean desp = false;
+        for (Individuo i : this.population) {
+            if (i.getFitness() < 0) {
+                desp = true;
+            }
+
+            if (i.getFitness() > fmax) {
+                fmax = i.getFitness();
+            }
+        }
+
+        double accProb = 0;
+        double prob;
+        double fitness;
+        for (int i = 0; i < this.populationSize; i++) {
+            fitness = this.population[i].getFitness();
+            if (desp) fitness = 1.05* fmax - fitness;
+
+            prob = fitness/this.totalFitness;
+            accProb += prob;
+
+            this.seleccionables[i] = new Seleccionable(fitness, prob, accProb);
+            System.out.println("I: " + this.population[i].getFitness());
+            System.out.println("S: (" + this.seleccionables[i].getFitness() + ", " + this.seleccionables[i].getProb() + ", " + this.seleccionables[i].getAccProb() + ")");
+
+        }
+        return selection.getSeleccion(this.seleccionables, this.populationSize);
+    }
+
     private void reproduce(int pos1, int pos2, Individuo<T>[] populationCopy) {
         T[] c1 = population[pos1].chromosome;
         T[] c2 = population[pos2].chromosome;
@@ -210,10 +244,8 @@ public class AlgoritmoGenetico<T> {
 
     private void initialize_population(int func_index, double errorValue) {
         this.population = new Individuo[populationSize];
-        this.fitness = new double[populationSize];
         for (int i = 0; i < this.populationSize; i++) {
             this.population[i] = (Individuo<T>) IndividuoFactory.createIndividuo(func_index, this.errorValue, dimension);
-            this.fitness[i] = this.population[i].getFitness();
         }
         this.best = this.population[0];
         this.totalBest = best.getFitness();

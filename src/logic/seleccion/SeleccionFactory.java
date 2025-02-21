@@ -1,18 +1,22 @@
 package logic.seleccion;
 
 public class SeleccionFactory {
-    public static Seleccion getMetodoSeleccion(String seleccionType, boolean min, double mejor){
+    public static Seleccion getMetodoSeleccion(String seleccionType, double mejor){
         switch (seleccionType){
             case "Ruleta":
-                return new SeleccionRuleta(min);
+                return new SeleccionRuleta();
             case "Torneo Deterministico":
-                return new SeleccionTorneoDeterministico(min);
+                return new SeleccionTorneoDeterministico();
             case "Torneo Probabilistico":
-                return new SeleccionTorneoProbabilistico(min);
+                return new SeleccionTorneoProbabilistico();
             case "Estocastico Universal":
-                return new SeleccionEstocasticoUniversal(min);
+                return new SeleccionEstocasticoUniversal();
             case "Truncamiento":
-                return new SeleccionTruncamiento(min, mejor);
+                return new SeleccionTruncamiento(mejor);
+            case "Restos":
+                return new SeleccionRestos();
+            case "Ranking":
+                return new SeleccionRanking();
             default:
                 return null;
         }
