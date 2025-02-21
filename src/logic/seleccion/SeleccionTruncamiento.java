@@ -5,14 +5,11 @@ import java.util.stream.IntStream;
 
 public class SeleccionTruncamiento extends Seleccion {
 
-    private double trunc; // Proporción de la población seleccionada (ej. 0.5 o 0.1)
+    private final double trunc; // Proporción de la población seleccionada (ej. 0.5 o 0.1)
 
-    public SeleccionTruncamiento(double[] fitness, int tamPoblacion, boolean min, double trunc) {
-        this.fitness = fitness;
-        this.tamPoblacion = tamPoblacion;
+    public SeleccionTruncamiento(Seleccionable[] list, int tamPoblacion, boolean min, double trunc) {
+        super(list, tamPoblacion, min);
         this.trunc = trunc;
-        this.seleccion = new int[this.tamPoblacion];
-        this.min = min;
     }
 
     @Override
@@ -36,7 +33,7 @@ public class SeleccionTruncamiento extends Seleccion {
         // Ordenar índices por fitness (ascendente si minimizamos, descendente si maximizamos)
         return IntStream.range(0, tamPoblacion)
                 .boxed()
-                .sorted(Comparator.comparingDouble(i -> min ? fitness[i] : -fitness[i])) // Ordena por fitness
+                .sorted(Comparator.comparingDouble(i -> min ? list[i].getFitness() : -1*list[i].getFitness())) // Ordena por fitness
                 .mapToInt(i -> i)
                 .toArray();
     }

@@ -2,14 +2,11 @@ package logic.seleccion;
 
 public class SeleccionTorneoProbabilistico extends Seleccion {
 
-    private double p = 0.5;
+    private final double p;
 
-    public SeleccionTorneoProbabilistico(double[] fitness, int tamPoblacion, boolean min) {
-        this.fitness = fitness;
-        this.tamPoblacion = tamPoblacion;
-        this.probabilidad = new double[this.tamPoblacion];
-        this.seleccion = new int[this.tamPoblacion];
-        this.min = min;
+    public SeleccionTorneoProbabilistico(Seleccionable[] list, int tamPoblacion, boolean min) {
+        super(list, tamPoblacion, min);
+        this.p = 0.5;
     }
 
     @Override
@@ -28,7 +25,10 @@ public class SeleccionTorneoProbabilistico extends Seleccion {
 
         // Determinar el mejor y el segundo mejor según si es minimización o maximización
         int mejor, segundo;
-        if ((min && fitness[ind1] > fitness[ind2]) || (!min && fitness[ind1] < fitness[ind2])) {
+        if (
+                (min && list[ind1].getFitness() > list[ind2].getFitness()) ||
+                (!min && list[ind1].getFitness() < list[ind2].getFitness())
+        ) {
             mejor = ind1;
             segundo = ind2;
         } else {
@@ -36,10 +36,16 @@ public class SeleccionTorneoProbabilistico extends Seleccion {
             segundo = ind1;
         }
 
-        if ((min && fitness[mejor] > fitness[ind3]) || (!min && fitness[mejor] < fitness[ind3])) {
+        if (
+                (min && list[mejor].getFitness() > list[ind3].getFitness()) ||
+                (!min && list[mejor].getFitness() < list[ind3].getFitness())
+        ) {
             segundo = mejor;
             mejor = ind3;
-        } else if ((min && fitness[segundo] > fitness[ind3]) || (!min && fitness[segundo] < fitness[ind3])) {
+        } else if (
+                (min && list[segundo].getFitness() > list[ind3].getFitness()) ||
+                (!min && list[segundo].getFitness() < list[ind3].getFitness())
+        ) {
             segundo = ind3;
         }
 
