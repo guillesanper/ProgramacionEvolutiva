@@ -90,8 +90,6 @@ public class AlgoritmoGenetico<T> {
         evaluate_population();
 
         while (generations-- != 0) {
-            this.selection = SeleccionFactory.getMetodoSeleccion(selectionType, fitness, populationSize, isMin(), best.getFitness());
-
             // Seleccion
             selec = this.select();
 
@@ -170,7 +168,6 @@ public class AlgoritmoGenetico<T> {
         for (int i = 0; i < populationSize; i++) {
             fit = population[i].getFitness();
             population[i].fitness = fit;
-            fitness[i] = fit;
             totalFitness += fit;
 
             // Agregar a la cola de elitismo si es necesario
@@ -288,9 +285,6 @@ public class AlgoritmoGenetico<T> {
             accProb += prob;
 
             this.seleccionables[i] = new Seleccionable(fitness, prob, accProb);
-            System.out.println("I: " + this.population[i].getFitness());
-            System.out.println("S: (" + this.seleccionables[i].getFitness() + ", " + this.seleccionables[i].getProb() + ", " + this.seleccionables[i].getAccProb() + ")");
-
         }
         return selection.getSeleccion(this.seleccionables, this.populationSize);
     }
