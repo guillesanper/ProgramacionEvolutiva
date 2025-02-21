@@ -4,23 +4,25 @@ public class SeleccionTorneoProbabilistico extends Seleccion {
 
     private final double p;
 
-    public SeleccionTorneoProbabilistico(Seleccionable[] list, int tamPoblacion, boolean min) {
-        super(list, tamPoblacion, min);
+    public SeleccionTorneoProbabilistico(boolean min) {
+        super(min);
         this.p = 0.5;
     }
 
     @Override
-    public int[] getSeleccion() {
-        for (int i = 0; i < this.tamPoblacion; i++) {
-            this.seleccion[i] = torneoProbabilistico();
+    public int[] getSeleccion(Seleccionable[] list, int tamPoblacion) {
+        int[] seleccion = new int[tamPoblacion];
+
+        for (int i = 0; i < tamPoblacion; i++) {
+            seleccion[i] = torneoProbabilistico(list, tamPoblacion);
         }
-        return this.seleccion;
+        return seleccion;
     }
 
-    private int torneoProbabilistico() {
-        int ind1 = this.rand.nextInt(this.tamPoblacion);
-        int ind2 = this.rand.nextInt(this.tamPoblacion);
-        int ind3 = this.rand.nextInt(this.tamPoblacion);
+    private int torneoProbabilistico(Seleccionable[] list, int tamPoblacion) {
+        int ind1 = this.rand.nextInt(tamPoblacion);
+        int ind2 = this.rand.nextInt(tamPoblacion);
+        int ind3 = this.rand.nextInt(tamPoblacion);
         double x = this.rand.nextDouble();
 
         // Determinar el mejor y el segundo mejor según si es minimización o maximización
