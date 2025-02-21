@@ -1,24 +1,12 @@
 package logic.seleccion;
 
 public class Seleccionable {
-    public int ind;
     public double fitness;
     public double prob;
     public double accProb;
 
-    public Seleccionable(double fitness, double prob, double accProb) {
-       // this.ind = ind;
+    public Seleccionable(double fitness) {
         this.fitness = fitness;
-        this.prob = prob;
-        this.accProb = accProb;
-    }
-
-    public int getInd() {
-        return ind;
-    }
-
-    public void setInd(int ind) {
-        this.ind = ind;
     }
 
     public double getFitness() {
