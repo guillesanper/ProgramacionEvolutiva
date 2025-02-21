@@ -6,8 +6,8 @@ public class Seleccionable {
     public double prob;
     public double accProb;
 
-    public Seleccionable(int ind, double fitness, double prob, double accProb) {
-        this.ind = ind;
+    public Seleccionable(double fitness, double prob, double accProb) {
+       // this.ind = ind;
         this.fitness = fitness;
         this.prob = prob;
         this.accProb = accProb;

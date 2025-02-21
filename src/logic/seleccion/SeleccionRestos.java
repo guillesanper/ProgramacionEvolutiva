@@ -1,20 +1,17 @@
 package logic.seleccion;
 
 public class SeleccionRestos extends Seleccion{
-
-    public SeleccionRestos(Seleccionable[] list, int tamPoblacion, boolean min) {
-        super(list, tamPoblacion, min);
-    }
-
     @Override
-    public int[] getSeleccion() {
+    public int[] getSeleccion(Seleccionable[] list, int tamPoblacion) {
+        int[] seleccion = new int[tamPoblacion];
+
         int metidos = 0;
 
-        for (int i = 0; i < this.tamPoblacion; i++) {
-            long apariciones = Math.round(this.list[i].getProb()*tamPoblacion);
+        for (int i = 0; i < tamPoblacion; i++) {
+            long apariciones = Math.round(list[i].getProb()*tamPoblacion);
 
             for (int j = 0; j < apariciones; j++) {
-                this.seleccion[metidos] = i;
+                seleccion[metidos] = i;
                 metidos++;
             }
         }
@@ -22,11 +19,11 @@ public class SeleccionRestos extends Seleccion{
         if (metidos != tamPoblacion) {
 
             int[] nuevaSeleccion = SeleccionFactory.getMetodoSeleccion(
-                    "Torneo Deterministico", list, tamPoblacion-metidos, min, 0
-            ).getSeleccion();
+                    "Torneo Deterministico", 0
+            ).getSeleccion(list, tamPoblacion-metidos);
 
-            for (int i = 0; i < tamPoblacion-metidos; i++) this.seleccion[metidos+i] = nuevaSeleccion[i];
+            for (int i = 0; i < tamPoblacion-metidos; i++) seleccion[metidos+i] = nuevaSeleccion[i];
         }
-        return this.seleccion;
+        return seleccion;
     }
 }
