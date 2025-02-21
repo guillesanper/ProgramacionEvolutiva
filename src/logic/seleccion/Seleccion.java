@@ -22,4 +22,5 @@ public abstract class Seleccion {
 
     public abstract int[] getSeleccion();
 
+
 }

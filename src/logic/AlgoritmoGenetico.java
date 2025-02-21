@@ -51,7 +51,7 @@ public class AlgoritmoGenetico<T> {
     private int currentGeneration;
     private double[][] generationProgress;
     private double totalBest;
-    private Pair<Double,Double> graphIntervals;
+    private Pair<Double, Double> graphIntervals;
 
     private final Controls controlPanel;
 
@@ -71,10 +71,10 @@ public class AlgoritmoGenetico<T> {
         initialize_population(funcIndex, errorValue);
 
 
-        Comparator<NodoIndividuo> comparator= Comparator.comparingDouble(NodoIndividuo::getValue);
-        if(funcIndex!=0)
-            elitQ=new PriorityQueue<>(Collections.reverseOrder(comparator));
-        else elitQ=new PriorityQueue<>(comparator);
+        Comparator<NodoIndividuo> comparator = Comparator.comparingDouble(NodoIndividuo::getValue);
+        if (funcIndex != 0)
+            elitQ = new PriorityQueue<>(Collections.reverseOrder(comparator));
+        else elitQ = new PriorityQueue<>(comparator);
 
         this.selection = SeleccionFactory.getMetodoSeleccion(selectionType, fitness, populationSize, isMin(), best.getFitness());
         this.cross = (Cruce<T>) CruceFactory.getCruceType(crossType, isFunc5(), dimension);
@@ -87,6 +87,8 @@ public class AlgoritmoGenetico<T> {
         evaluate_population();
 
         while (generations-- != 0) {
+            this.selection = SeleccionFactory.getMetodoSeleccion(selectionType, fitness, populationSize, isMin(), best.getFitness());
+
             // Seleccion
             selec = selection.getSeleccion();
 
@@ -106,24 +108,37 @@ public class AlgoritmoGenetico<T> {
 
 
             // elitism
-            while(elitQ.size()!=0) {
-                population[populationSize-elitQ.size()]=elitQ.poll().getIndividuo();
+            while (elitQ.size() != 0) {
+                population[populationSize - elitQ.size()] = elitQ.poll().getIndividuo();
             }
 
             // Evaluamos poblacion
             evaluate_population();
         }
 
-        controlPanel.update_graph(generationProgress,graphIntervals,best,true);
+        controlPanel.update_graph(generationProgress, graphIntervals, best, true);
     }
 
-    private void cross_population(int[] selec){
-        // **Crear copia de la población antes del cruce**
-        Individuo<T>[] selection = copyPopulation();
+    private void cross_population(int[] selec) {
+        // Crear copia de la población antes del cruce
+        Individuo<T>[] selection = copyPopulation(selec);
+        // De los seleccionados, los indices de los que se reproduciran
+        int[] chosen_for_cross = new int[populationSize];
+        int chosen_size = 0;
+
+        for (int i = 0; i < populationSize; i++) {
+            if (Math.random() < probCruce) {
+                chosen_for_cross[chosen_size++] = selec[i];
+            }
+        }
+
+        if(chosen_size%2 == 1){
+            chosen_size--;
+        }
 
         // Aplicar cruce en la copia para evitar sobrescribir individuos seleccionados múltiples veces
-        for (int i = 0; i < populationSize - 1; i += 2) {
-            reproduce(selec[i], selec[i + 1], selection);
+        for (int i = 0; i < chosen_size - 1; i += 2) {
+                reproduce(chosen_for_cross[i],chosen_for_cross[i + 1], selection);
         }
 
         this.population = selection;
@@ -132,11 +147,11 @@ public class AlgoritmoGenetico<T> {
     /**
      * Copia la población actual para evitar modificaciones no deseadas
      */
-    private Individuo<T>[] copyPopulation() {
+    private Individuo<T>[] copyPopulation(int[] selec) {
         Individuo<T>[] copy = new Individuo[populationSize];
         for (int i = 0; i < populationSize; i++) {
             copy[i] = (Individuo<T>) IndividuoFactory.createIndividuo(funcIndex, errorValue, dimension);
-            copy[i].chromosome = Arrays.copyOf(population[i].chromosome, population[i].chromosome.length);
+            copy[i].chromosome = Arrays.copyOf(population[selec[i]].chromosome, population[i].chromosome.length);
         }
         return copy;
     }
@@ -152,6 +167,7 @@ public class AlgoritmoGenetico<T> {
         for (int i = 0; i < populationSize; i++) {
             fit = population[i].getFitness();
             population[i].fitness = fit;
+            fitness[i] = fit;
             totalFitness += fit;
 
             // Agregar a la cola de elitismo si es necesario
@@ -226,7 +242,7 @@ public class AlgoritmoGenetico<T> {
     /**
      * Compara el individuo evaluado con el peor de los mejores y si es mejor lo sustituye
      */
-    private void compareAndReplaceElite( Individuo<T> newInd) {
+    private void compareAndReplaceElite(Individuo<T> newInd) {
         // Obtener el peor de la cola (depende del criterio de comparación)
         NodoIndividuo worstElite = elitQ.peek();
 

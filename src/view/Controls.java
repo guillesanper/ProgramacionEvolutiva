@@ -78,7 +78,7 @@ public class Controls extends JPanel {
         gbc.insets = new Insets(10, 10, 10, 10); // Más separación
         String[] funciones = {"F1: Calibracion y Prueba",
                 "F2: Mishra Bird",
-                "F3: Holder table",
+                "F3: Schubert",
                 "F4: Michalewicz (Binaria)",
                 "F5: Michalewicz (Real)"
         };
