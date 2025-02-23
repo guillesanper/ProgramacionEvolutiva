@@ -96,15 +96,6 @@ public class AlgoritmoGenetico<T> {
             // Mutación
             mutacion.mut_population(population);
 
-            // Recalcular el mejor después de la mutación
-            for (Individuo<T> ind : population) {
-                if (compare(ind.getFitness(), totalBest)) {
-                    totalBest = ind.getFitness();
-                    best = ind;
-                }
-            }
-
-
             // elitism
             while (elitQ.size() != 0) {
                 population[populationSize - elitQ.size()] = elitQ.poll().getIndividuo();
@@ -127,6 +118,8 @@ public class AlgoritmoGenetico<T> {
         for (int i = 0; i < populationSize; i++) {
             if (Math.random() < probCruce) {
                 chosen_for_cross[chosen_size++] = selec[i];
+            } else{
+                population[i] = selection[i];
             }
         }
 
@@ -142,17 +135,48 @@ public class AlgoritmoGenetico<T> {
         this.population = selection;
     }
 
+    private void reproduce(int pos1, int pos2, Individuo<T>[] populationCopy) {
+        Individuo<T> ind1 = populationCopy[pos1];
+        Individuo<T> ind2 = populationCopy[pos2];
+
+        // Copiar los cromosomas de los padres
+        T[] c1 = ind1.chromosome;
+        T[] c2 = ind2.chromosome;
+
+        // Aplicar cruce
+        this.cross.cross(c1, c2);
+
+        // Asignar nuevos cromosomas a las nuevas instancias
+        ind1.chromosome = c1;
+        ind2.chromosome = c2;
+
+        //Evaluar individuos
+        ind1.fitness = ind1.getFitness();
+        ind2.fitness = ind2.getFitness();
+
+        // Reemplazar los individuos en la población copiada
+        population[pos1] = ind1;
+        population[pos2] = ind2;
+    }
+
     /**
      * Copia la población actual para evitar modificaciones no deseadas
      */
     private Individuo<T>[] copyPopulation(int[] selec) {
         Individuo<T>[] copy = new Individuo[populationSize];
         for (int i = 0; i < populationSize; i++) {
+            // Crear un nuevo individuo para evitar referencias compartidas
             copy[i] = (Individuo<T>) IndividuoFactory.createIndividuo(funcIndex, errorValue, dimension);
-            copy[i].chromosome = Arrays.copyOf(population[selec[i]].chromosome, population[i].chromosome.length);
+
+            // Copiar los valores del cromosoma sin compartir la referencia
+            copy[i].chromosome = Arrays.copyOf(population[selec[i]].chromosome, population[selec[i]].chromosome.length);
+
+            // Copiar el fitness también para coherencia
+            copy[i].fitness = population[selec[i]].getFitness();
         }
         return copy;
     }
+
 
     private void evaluate_population() {
         totalFitness = 0;
@@ -194,47 +218,7 @@ public class AlgoritmoGenetico<T> {
         generationProgress[1][currentGeneration] = best_gen;    // Mejor de la generacion
         generationProgress[2][currentGeneration++] = totalFitness / populationSize; //Media
 
-        //  TODO Desplazamiento para eliminar fitness negativos aqui o en metodo de seleccion
-        double acum = 0;
-
     }
-
-    /*private int[] selElite(int numElit) {
-        this.elite = new Individuo[numElit];
-        int temp;
-        int[]posElit = new int[numElit];
-        for(int i = 0; i < numElit; i++) {
-            this.elite[i] = (Individuo<T>) IndividuoFactory.getIndivType(this.ind, this.valErr, this.d);
-            this.elite[i].setCromosoma(this.poblacion[i].getCromosoma());
-            posElit[i] = i;
-        }
-        for(int i = numElit; i < this.tamPoblacion; i++) {
-            temp = 0;
-            for(int j = 1; j < numElit; j++) {
-                if(!this.min) {
-                    if(this.elite[temp].getFitness() < this.elite[j].getFitness())
-                        temp = j;
-                }
-                else {
-                    if(this.elite[temp].getFitness() > this.elite[j].getFitness())
-                        temp = j;
-                }
-            }
-            if(!this.min){
-                if (this.elite[temp].getFitness() < this.poblacion[i].getFitness()) {
-                    this.elite[temp].setCromosoma(this.poblacion[i].getCromosoma());
-                    posElit[temp] = i;
-                }
-            }
-            else {
-                if(this.elite[temp].getFitness() > this.poblacion[i].getFitness()) {
-                    this.elite[temp].setCromosoma(this.poblacion[i].getCromosoma());
-                    posElit[temp] = i;
-                }
-            }
-        }
-        return posElit;
-    }*/
 
     /**
      * Compara el individuo evaluado con el peor de los mejores y si es mejor lo sustituye
@@ -259,6 +243,8 @@ public class AlgoritmoGenetico<T> {
     }
 
     private int[] select() {
+        this.selection = SeleccionFactory.getMetodoSeleccion(selectionType, best.getFitness());
+
         // Saber si hay que desplazar y calcular fitness maximo
         double fmax = this.population[0].getFitness();
         boolean desp = false;
@@ -298,20 +284,13 @@ public class AlgoritmoGenetico<T> {
             this.seleccionables[i].setProb(prob);
             this.seleccionables[i].setAccProb(accProb);
             Seleccionable s = seleccionables[i];
-            System.out.println("S"+i + ": (" + s.getFitness() + ", " + s.getProb() + ", " + s.getAccProb() + ")");
+            //System.out.println("S"+i + ": (" + s.getFitness() + ", " + s.getProb() + ", " + s.getAccProb() + ")");
         }
-        System.out.println("\n-------------------\n");
+        //System.out.println("\n-------------------\n");
         // Seleccionar
         return selection.getSeleccion(this.seleccionables, this.populationSize);
     }
 
-    private void reproduce(int pos1, int pos2, Individuo<T>[] populationCopy) {
-        T[] c1 = Arrays.copyOf(population[pos1].chromosome, population[pos1].chromosome.length);
-        T[] c2 = Arrays.copyOf(population[pos2].chromosome, population[pos2].chromosome.length);
-        this.cross.cross(c1, c2);
-        populationCopy[pos1].chromosome = c1;
-        populationCopy[pos2].chromosome = c2;
-    }
 
     private void initialize_population(int func_index, double errorValue) {
         this.population = new Individuo[populationSize];
