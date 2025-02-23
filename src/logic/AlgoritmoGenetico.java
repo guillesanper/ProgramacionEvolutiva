@@ -13,10 +13,7 @@ import utils.NodoIndividuo;
 import utils.Pair;
 import view.Controls;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.PriorityQueue;
+import java.util.*;
 
 public class AlgoritmoGenetico<T> {
 
@@ -262,6 +259,7 @@ public class AlgoritmoGenetico<T> {
     }
 
     private int[] select() {
+        // Saber si hay que desplazar y calcular fitness maximo
         double fmax = this.population[0].getFitness();
         boolean desp = false;
         for (Individuo i : this.population) {
@@ -274,18 +272,36 @@ public class AlgoritmoGenetico<T> {
             }
         }
 
-        double accProb = 0;
-        double prob;
+        // Desplazar fitness y calcular el fitness total desplazado
         double fitness;
+        this.totalFitness = 0;
+        double fact = 1.05;
+
         for (int i = 0; i < this.populationSize; i++) {
             fitness = this.population[i].getFitness();
-            if (desp) fitness = 1.05* fmax - fitness;
+            if (desp) {
+                fitness = fact * fmax - fitness;
+            }
 
-            prob = fitness/this.totalFitness;
+            this.seleccionables[i] = new Seleccionable(fitness);
+            this.totalFitness += fitness;
+        }
+
+        // Crear tabla
+        double accProb = 0;
+        double prob;
+        System.out.println(this.totalFitness);
+        for (int i = 0; i < this.populationSize; i++) {
+            prob = this.seleccionables[i].getFitness()/this.totalFitness;
             accProb += prob;
 
-            this.seleccionables[i] = new Seleccionable(fitness, prob, accProb);
+            this.seleccionables[i].setProb(prob);
+            this.seleccionables[i].setAccProb(accProb);
+            Seleccionable s = seleccionables[i];
+            System.out.println("S"+i + ": (" + s.getFitness() + ", " + s.getProb() + ", " + s.getAccProb() + ")");
         }
+        System.out.println("\n-------------------\n");
+        // Seleccionar
         return selection.getSeleccion(this.seleccionables, this.populationSize);
     }
 
