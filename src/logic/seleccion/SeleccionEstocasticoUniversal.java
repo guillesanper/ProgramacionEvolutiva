@@ -16,8 +16,10 @@ public class SeleccionEstocasticoUniversal extends Seleccion{
 
         for (int i = 1; i <= tamPoblacion; i++){
             seleccionado = (r+i-1)/tamPoblacion;
-            int j = 0;
-            while (seleccionado < marcas[j]) j++;
+            int j;
+            for (j = 1; j < marcas.length; j++) {
+                if (seleccionado >= marcas[j-1] && seleccionado < marcas[j]) break;
+            }
             seleccion[metidos] = j-1;
             metidos++;
         }
