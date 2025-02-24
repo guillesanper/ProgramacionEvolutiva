@@ -9,6 +9,8 @@ public class CruceFactory {
                 return func5 ? new CruceUniforme<Double>(chromosomeSize) : new CruceUniforme<Boolean>(chromosomeSize);
             case "Aritmetico":
                 return new CruceAritmetico(chromosomeSize);
+            case "BLX-Alfa":
+                return new CruceBLXalpha(chromosomeSize);
             default:
                 return null;
         }

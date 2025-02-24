@@ -6,7 +6,7 @@ public class SeleccionTorneoProbabilistico extends Seleccion {
     private final boolean min;
     public SeleccionTorneoProbabilistico() {
         this.min = false;
-        this.p = 0.5;
+        this.p = 0.8;
     }
 
     @Override

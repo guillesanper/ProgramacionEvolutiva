@@ -2,6 +2,7 @@ package logic;
 
 import logic.cruce.Cruce;
 import logic.cruce.CruceFactory;
+import logic.escalado.Escalado;
 import logic.mutacion.Mutacion;
 import logic.seleccion.Seleccion;
 import logic.seleccion.SeleccionFactory;
@@ -12,6 +13,7 @@ import model.IndividuoFactory;
 import utils.NodoIndividuo;
 import utils.Pair;
 import view.Controls;
+import logic.escalado.EscaladoFactory;
 
 import java.util.*;
 
@@ -43,6 +45,9 @@ public class AlgoritmoGenetico<T> {
     private int eliteSize;
     private PriorityQueue<NodoIndividuo> elitQ;
 
+    private boolean scalingActivated;
+    private Escalado scaling;
+
     /**
      * Variables para la gráfica
      */
@@ -68,7 +73,6 @@ public class AlgoritmoGenetico<T> {
 
         initialize_population(funcIndex, errorValue);
 
-
         Comparator<NodoIndividuo> comparator = Comparator.comparingDouble(NodoIndividuo::getValue);
         elitQ = isMin() ? new PriorityQueue<>(Collections.reverseOrder(comparator)) : new PriorityQueue<>(comparator);
 
@@ -85,6 +89,8 @@ public class AlgoritmoGenetico<T> {
         evaluate_population();
 
         while (generations-- != 0) {
+            if(scalingActivated)
+                scaling.escalarFitness(this.population);
             // Seleccion
             selec = this.select();
 
@@ -95,8 +101,8 @@ public class AlgoritmoGenetico<T> {
             mutacion.mut_population(population);
 
             // elitism
-            while(elitQ.size()!=0) {
-                population[populationSize-elitQ.size()]=elitQ.poll().getIndividuo();
+            while (elitQ.size() != 0) {
+                population[populationSize - elitQ.size()] = elitQ.poll().getIndividuo();
             }
 
             // Evaluamos poblacion
@@ -119,19 +125,19 @@ public class AlgoritmoGenetico<T> {
             }
         }
 
-        if(chosen_size%2 == 1){
+        if (chosen_size % 2 == 1) {
             chosen_size--;
         }
 
         // Aplicar cruce en la copia para evitar sobrescribir individuos seleccionados múltiples veces
         for (int i = 0; i < chosen_size - 1; i += 2) {
-            if(!isElite(chosen_for_cross[i]) && !isElite(chosen_for_cross[i+1])) {
+            if (!isElite(chosen_for_cross[i]) && !isElite(chosen_for_cross[i + 1])) {
                 reproduce(chosen_for_cross[i], chosen_for_cross[i + 1], selection);
             }
         }
 
         for (int i = 0; i < chosen_size; i++) {
-            if(!isElite(chosen_for_cross[i]) ) {
+            if (!isElite(chosen_for_cross[i])) {
                 this.population[chosen_for_cross[i]].chromosome = Arrays.copyOf(selection[chosen_for_cross[i]].chromosome, selection[chosen_for_cross[i]].chromosome.length);
                 this.population[chosen_for_cross[i]].fitness = this.population[chosen_for_cross[i]].getFitness();
             }
@@ -147,37 +153,6 @@ public class AlgoritmoGenetico<T> {
         populationCopy[pos2].chromosome = c2;
     }
 
-
-    public Individuo<T>[] separaMejores(int tamElite) {
-        // Crear una lista de los mejores individuos
-        Individuo<T>[] elite = new Individuo[tamElite];
-
-        // Usar un PriorityQueue para ordenar los mejores
-        PriorityQueue<NodoIndividuo> eliteQueue;
-        Comparator<NodoIndividuo> comparator = Comparator.comparingDouble(NodoIndividuo::getValue);
-
-        // Si es minimización, usar orden normal; si es maximización, usar orden inverso
-        if (isMin()) {
-            eliteQueue = new PriorityQueue<>(comparator);
-        } else {
-            eliteQueue = new PriorityQueue<>(Collections.reverseOrder(comparator));
-        }
-
-        // Insertar individuos en la cola de prioridad
-        for (Individuo<T> ind : population) {
-            eliteQueue.add(new NodoIndividuo(ind.getFitness(), ind));
-            if (eliteQueue.size() > tamElite) {
-                eliteQueue.poll(); // Mantener solo los mejores
-            }
-        }
-
-        // Extraer los mejores individuos
-        for (int i = 0; i < tamElite; i++) {
-            elite[i] = eliteQueue.poll().getIndividuo();
-        }
-
-        return elite;
-    }
 
     public void incluye(Individuo<T>[] elite) {
         // Volver a integrar los individuos élite en la población
@@ -239,8 +214,8 @@ public class AlgoritmoGenetico<T> {
             //Actualizamos mejor o peor de la generacion si es necesario
             if (compare(fit, best_gen)) {
                 best_gen = fit;
-                bestGenInd = (Individuo<T>) IndividuoFactory.createIndividuo(funcIndex,errorValue,dimension);
-                bestGenInd.chromosome = Arrays.copyOf(population[i].chromosome,population[i].chromosome.length);
+                bestGenInd = (Individuo<T>) IndividuoFactory.createIndividuo(funcIndex, errorValue, dimension);
+                bestGenInd.chromosome = Arrays.copyOf(population[i].chromosome, population[i].chromosome.length);
             }
             worst_gen = compare(fit, worst_gen) ? worst_gen : fit;
 
@@ -317,7 +292,7 @@ public class AlgoritmoGenetico<T> {
         double prob;
         System.out.println(this.totalFitness);
         for (int i = 0; i < this.populationSize; i++) {
-            prob = this.seleccionables[i].getFitness()/this.totalFitness;
+            prob = this.seleccionables[i].getFitness() / this.totalFitness;
             accProb += prob;
 
             this.seleccionables[i].setProb(prob);
@@ -352,11 +327,16 @@ public class AlgoritmoGenetico<T> {
         this.dimension = valores.dimension;
         this.elitismo = valores.elitismo;
         this.generations = valores.generations;
-
         this.eliteSize = (int) (populationSize * (elitismo / 100.0));
+        this.scalingActivated = valores.scaling != "Ninguno";
+        if(scalingActivated)
+            this.scaling = EscaladoFactory.getEscalado(valores.scaling);
     }
 
     private boolean comprueba_valores() {
+        if (this.elitismo < 0) return false;
+        if (this.generations < 0) return false;
+        if (this.populationSize < 0) return false;
 
         return true;
     }

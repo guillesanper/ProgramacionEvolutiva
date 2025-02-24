@@ -12,7 +12,7 @@ public class CruceMonoPunto<T> extends Cruce<T> {
         int i = 0;
         T temp;
         Random rand = new Random();
-        int x = rand.nextInt(c1.length - 2) + 1; // Evita cruce en extremos
+        int x = rand.nextInt(c1.length ) ; // Evita cruce en extremos
         for( i = 0; i < x; i++) {
             temp = c1[i];
             c1[i] = c2[i];
