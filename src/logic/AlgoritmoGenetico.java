@@ -257,7 +257,7 @@ public class AlgoritmoGenetico<T> {
     }
 
     private int[] select() {
-        this.selection = SeleccionFactory.getMetodoSeleccion(selectionType, best.getFitness());
+        this.selection = SeleccionFactory.getMetodoSeleccion(selectionType);
 
         // Saber si hay que desplazar y calcular fitness maximo
         double fdesp = this.population[0].getFitness();

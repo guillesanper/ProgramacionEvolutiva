@@ -4,7 +4,7 @@ import java.util.Random;
 
 public class CruceBLXalpha extends Cruce<Double> {
 
-    private double alpha = 0.5;
+    private double alpha = 0.3;
 
     public CruceBLXalpha(int tamCromosoma) {
         super(tamCromosoma);
