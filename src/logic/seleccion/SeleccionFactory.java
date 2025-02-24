@@ -1,7 +1,7 @@
 package logic.seleccion;
 
 public class SeleccionFactory {
-    public static Seleccion getMetodoSeleccion(String seleccionType, double mejor){
+    public static Seleccion getMetodoSeleccion(String seleccionType){
         switch (seleccionType){
             case "Ruleta":
                 return new SeleccionRuleta();
@@ -13,12 +13,13 @@ public class SeleccionFactory {
                 return new SeleccionEstocasticoUniversal();
             case "Truncamiento":
                 return new SeleccionTruncamiento(0.5);
+
             case "Restos":
                 return new SeleccionRestos();
             case "Ranking":
                 return new SeleccionRanking();
             default:
-                return null;
+                return new SeleccionRuleta();
         }
 
     }

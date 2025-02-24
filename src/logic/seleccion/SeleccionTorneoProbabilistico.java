@@ -3,10 +3,23 @@ package logic.seleccion;
 public class SeleccionTorneoProbabilistico extends Seleccion {
 
     private final double p;
-    private final boolean min;
+
     public SeleccionTorneoProbabilistico() {
         this.min = false;
         this.p = 0.8;
+
+    }
+
+    private Seleccionable bigger(Seleccionable a, Seleccionable b, Seleccionable c) {
+        if (a.compareTo(b) > 0 && a.compareTo(c) > 0) return a;
+        if (b.compareTo(c) > 0) return b;
+        return c;
+    }
+
+    private Seleccionable smaller(Seleccionable a, Seleccionable b, Seleccionable c) {
+        if (a.compareTo(b) < 0 && a.compareTo(c) < 0) return a;
+        if (b.compareTo(c) < 0) return b;
+        return c;
     }
 
     @Override
@@ -16,6 +29,7 @@ public class SeleccionTorneoProbabilistico extends Seleccion {
         for (int i = 0; i < tamPoblacion; i++) {
             seleccion[i] = torneoProbabilistico(list, tamPoblacion);
         }
+
         return seleccion;
     }
 
@@ -23,34 +37,12 @@ public class SeleccionTorneoProbabilistico extends Seleccion {
         int ind1 = this.rand.nextInt(tamPoblacion);
         int ind2 = this.rand.nextInt(tamPoblacion);
         int ind3 = this.rand.nextInt(tamPoblacion);
-        double x = this.rand.nextDouble();
 
-        // Determinar el mejor y el segundo mejor según si es minimización o maximización
-        int mejor, segundo;
-        if (
-                (min && list[ind1].getFitness() > list[ind2].getFitness()) ||
-                (!min && list[ind1].getFitness() < list[ind2].getFitness())
-        ) {
-            mejor = ind1;
-            segundo = ind2;
-        } else {
-            mejor = ind2;
-            segundo = ind1;
-        }
+        Seleccionable a = list[ind1];
+        Seleccionable b = list[ind2];
+        Seleccionable c = list[ind3];
 
-        if (
-                (min && list[mejor].getFitness() > list[ind3].getFitness()) ||
-                (!min && list[mejor].getFitness() < list[ind3].getFitness())
-        ) {
-            segundo = mejor;
-            mejor = ind3;
-        } else if (
-                (min && list[segundo].getFitness() > list[ind3].getFitness()) ||
-                (!min && list[segundo].getFitness() < list[ind3].getFitness())
-        ) {
-            segundo = ind3;
-        }
-
-        return (x > p) ? mejor : segundo;
+        if (this.rand.nextDouble() <= p) return smaller(a, b, c).getIndex();
+        return bigger(a, b, c).getIndex();
     }
 }

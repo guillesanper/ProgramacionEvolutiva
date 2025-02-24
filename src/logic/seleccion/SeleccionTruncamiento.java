@@ -6,8 +6,8 @@ public class SeleccionTruncamiento extends Seleccion {
 
     private final double trunc; // Proporción de la población seleccionada (ej. 0.5 o 0.1)
 
-    public SeleccionTruncamiento(double trunc) {
-        this.trunc = trunc;
+    public SeleccionTruncamiento() {
+        this.trunc = 0.5; // 50%
     }
 
     @Override
@@ -22,12 +22,14 @@ public class SeleccionTruncamiento extends Seleccion {
         Seleccionable[] ordenados = Arrays.copyOf(list, tamPoblacion);
         Arrays.sort(ordenados, (a, b) -> Double.compare(b.getFitness(), a.getFitness()));
 
+
         int pos = 0;
         for (int i = 0; i < numSeleccionados; i++) {
             for (int j = 0; j < repeticiones && pos < tamPoblacion; j++) {
                 seleccion[pos++] = Arrays.asList(list).indexOf(ordenados[i]); // Obtener índice original
             }
         }
+
 
         return seleccion;
     }

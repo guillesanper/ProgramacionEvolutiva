@@ -9,6 +9,7 @@ public class IndividuoFuncion5 extends IndividuoDouble {
         super(dimenion);
         this.d = dimenion;
         this.m = 10;
+
         double[] mins = new double[d];
         double[] maxs = new double[d];
 
@@ -31,5 +32,6 @@ public class IndividuoFuncion5 extends IndividuoDouble {
         }
 
         return - sum ;
+
     }
 }

@@ -1,20 +1,22 @@
 package logic.seleccion;
 
-public class Seleccionable {
-    public double fitness;
-    public double prob;
-    public double accProb;
+public class Seleccionable implements Comparable<Seleccionable>{
+    private final int index;
+    private final double fitness;
+    private double prob;
+    private double accProb;
 
-    public Seleccionable(double fitness) {
+    public Seleccionable(int index, double fitness) {
+        this.index = index;
         this.fitness = fitness;
+    }
+
+    public int getIndex() {
+        return index;
     }
 
     public double getFitness() {
         return fitness;
-    }
-
-    public void setFitness(double fitness) {
-        this.fitness = fitness;
     }
 
     public double getProb() {
@@ -31,5 +33,10 @@ public class Seleccionable {
 
     public void setAccProb(double accProb) {
         this.accProb = accProb;
+    }
+
+    @Override
+    public int compareTo(Seleccionable o) {
+        return Double.compare(this.fitness, o.fitness);
     }
 }

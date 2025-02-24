@@ -7,9 +7,12 @@ public abstract class Individuo<T> {
 
     public T[] chromosome;
 
-    public int[] genesSize;
+
 
     public int numGens;
+
+    public double[] min;
+    public double[] max;
 
     public double fitness;
 

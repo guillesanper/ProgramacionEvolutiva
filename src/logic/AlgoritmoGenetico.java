@@ -75,7 +75,7 @@ public class AlgoritmoGenetico<T> {
         Comparator<NodoIndividuo> comparator = Comparator.comparingDouble(NodoIndividuo::getValue);
         elitQ = isMin() ? new PriorityQueue<>(Collections.reverseOrder(comparator)) : new PriorityQueue<>(comparator);
 
-        this.selection = SeleccionFactory.getMetodoSeleccion(selectionType, best.getFitness());
+        this.selection = SeleccionFactory.getMetodoSeleccion(selectionType);
         this.seleccionables = new Seleccionable[this.populationSize];
 
         this.cross = (Cruce<T>) CruceFactory.getCruceType(crossType, isFunc5(), dimension);
@@ -248,41 +248,46 @@ public class AlgoritmoGenetico<T> {
         return isMin() ? (f1 < f2) : (f1 > f2);
     }
 
+    private double corrige(double fitness, double fDesp) {
+        if (this.isMin()) {
+            double fact = fDesp >= 0 ? 1.05 : 0.95;
+            return fact*fDesp - fitness;
+        }
+        return fitness + Math.abs(fDesp);
+    }
+
     private int[] select() {
         this.selection = SeleccionFactory.getMetodoSeleccion(selectionType, best.getFitness());
 
         // Saber si hay que desplazar y calcular fitness maximo
-        double fmax = this.population[0].getFitness();
+        double fdesp = this.population[0].getFitness();
         boolean desp = false;
         for (Individuo i : this.population) {
-            if (i.getFitness() < 0) {
-                desp = true;
-            }
+            if (isMin() || i.getFitness() < 0) desp = true;
 
-            if (i.getFitness() > fmax) {
-                fmax = i.getFitness();
-            }
+            double f = i.getFitness();
+
+            if (!compare(f, fdesp)) fdesp = i.getFitness(); // buscar maximo/minimo
         }
 
         // Desplazar fitness y calcular el fitness total desplazado
         double fitness;
         this.totalFitness = 0;
-        double fact = 1.05;
+
 
         for (int i = 0; i < this.populationSize; i++) {
             fitness = this.population[i].getFitness();
-            if (desp) {
-                fitness = fact * fmax - fitness;
-            }
+            if (desp) fitness = corrige(fitness, fdesp);
 
-            this.seleccionables[i] = new Seleccionable(fitness);
+            this.seleccionables[i] = new Seleccionable(i, fitness);
             this.totalFitness += fitness;
         }
+        Arrays.sort(this.seleccionables, Collections.reverseOrder());
 
         // Crear tabla
         double accProb = 0;
         double prob;
-        System.out.println(this.totalFitness);
+
         for (int i = 0; i < this.populationSize; i++) {
             prob = this.seleccionables[i].getFitness() / this.totalFitness;
             accProb += prob;
@@ -293,6 +298,7 @@ public class AlgoritmoGenetico<T> {
             //System.out.println("S"+i + ": (" + s.getFitness() + ", " + s.getProb() + ", " + s.getAccProb() + ")");
         }
         //System.out.println("\n-------------------\n");
+
         // Seleccionar
         return selection.getSeleccion(this.seleccionables, this.populationSize);
     }

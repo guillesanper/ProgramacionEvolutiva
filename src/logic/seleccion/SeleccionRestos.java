@@ -8,21 +8,24 @@ public class SeleccionRestos extends Seleccion{
         int metidos = 0;
 
         for (int i = 0; i < tamPoblacion; i++) {
+            if (metidos == tamPoblacion) break;
             long apariciones = Math.round(list[i].getProb()*tamPoblacion);
 
             if(apariciones < tamPoblacion-metidos )
             for (int j = 0; j < apariciones; j++) {
                 seleccion[metidos++] = i;
+
             }
         }
 
         if (metidos != tamPoblacion) {
 
             int[] nuevaSeleccion = SeleccionFactory.getMetodoSeleccion(
-                    "Torneo Deterministico", 0
+                    "Torneo Deterministico"
             ).getSeleccion(list, tamPoblacion-metidos);
 
-            for (int i = 0; i < tamPoblacion-metidos; i++) seleccion[metidos+i] = nuevaSeleccion[i];
+            if (tamPoblacion - metidos >= 0)
+                System.arraycopy(nuevaSeleccion, 0, seleccion, metidos, tamPoblacion - metidos);
         }
         return seleccion;
     }

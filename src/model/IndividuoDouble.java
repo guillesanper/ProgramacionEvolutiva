@@ -12,6 +12,7 @@ public abstract class IndividuoDouble extends Individuo<Double> {
         this.numGens = numGens;
     }
 
+
     public void initGens(double[] mins, double[] maxs) {
         this.min = mins;
         this.max = maxs;
@@ -21,6 +22,7 @@ public abstract class IndividuoDouble extends Individuo<Double> {
         for (int i = 0; i < numGens; i++) {
             this.chromosome[i] = min[i] + rand.nextDouble() * (max[i] - min[i]); // Generación en el rango [min[i], max[i]]
         }
+
 
     }
 
@@ -36,5 +38,6 @@ public abstract class IndividuoDouble extends Individuo<Double> {
                 this.chromosome[i] = min[i] + rand.nextDouble() * (max[i] - min[i]); // Generación en el rango [min[i], max[i]]
             }
         }
+
     }
 }
