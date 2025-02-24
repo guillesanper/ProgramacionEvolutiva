@@ -1,23 +1,28 @@
 package logic.seleccion;
 
-public class SeleccionTorneoDeterministico extends Seleccion{
+public class SeleccionTorneoDeterministico extends Seleccion {
+
+    private Seleccionable bigger(Seleccionable a, Seleccionable b, Seleccionable c) {
+        if (a.compareTo(b) > 0 && a.compareTo(c) > 0) return a;
+        if (b.compareTo(c) > 0) return b;
+        return c;
+    }
+
     @Override
     public int[] getSeleccion(Seleccionable[] list, int tamPoblacion) {
         int[] seleccion = new int[tamPoblacion];
 
-            for(int i = 0; i < tamPoblacion; i++) {
-                int ind1 = this.rand.nextInt(tamPoblacion), ind2 = this.rand.nextInt(tamPoblacion), ind3 = rand.nextInt(tamPoblacion);
-                if(list[ind1].getFitness() < list[ind2].getFitness())
-                    if(list[ind2].getFitness() < list[ind3].getFitness())
-                        seleccion[i] = ind3;
-                    else
-                        seleccion[i] = ind2;
-                else
-                if(list[ind1].getFitness() < list[ind3].getFitness())
-                    seleccion[i] = ind3;
-                else
-                    seleccion[i] = ind1;
-            }
+        for (int i = 0; i < tamPoblacion; i++) {
+            // 3 individuos aleatorios
+            int ind1 = this.rand.nextInt(tamPoblacion);
+            int ind2 = this.rand.nextInt(tamPoblacion);
+            int ind3 = rand.nextInt(tamPoblacion);
+
+            Seleccionable a = list[ind1];
+            Seleccionable b = list[ind2];
+            Seleccionable c = list[ind3];
+            seleccion[i] = bigger(a, b, c).getIndex();
+        }
 
         return seleccion;
     }

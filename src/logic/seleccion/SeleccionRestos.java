@@ -11,7 +11,7 @@ public class SeleccionRestos extends Seleccion{
             long apariciones = Math.round(list[i].getProb()*tamPoblacion);
 
             for (int j = 0; j < apariciones; j++) {
-                seleccion[metidos] = i;
+                seleccion[metidos] = list[i].getIndex();
                 metidos++;
             }
         }
@@ -19,10 +19,11 @@ public class SeleccionRestos extends Seleccion{
         if (metidos != tamPoblacion) {
 
             int[] nuevaSeleccion = SeleccionFactory.getMetodoSeleccion(
-                    "Torneo Deterministico", 0
+                    "Torneo Deterministico"
             ).getSeleccion(list, tamPoblacion-metidos);
 
-            for (int i = 0; i < tamPoblacion-metidos; i++) seleccion[metidos+i] = nuevaSeleccion[i];
+            if (tamPoblacion - metidos >= 0)
+                System.arraycopy(nuevaSeleccion, 0, seleccion, metidos, tamPoblacion - metidos);
         }
         return seleccion;
     }

@@ -74,7 +74,7 @@ public class AlgoritmoGenetico<T> {
             elitQ = new PriorityQueue<>(Collections.reverseOrder(comparator));
         else elitQ = new PriorityQueue<>(comparator);
 
-        this.selection = SeleccionFactory.getMetodoSeleccion(selectionType, best.getFitness());
+        this.selection = SeleccionFactory.getMetodoSeleccion(selectionType);
         this.seleccionables = new Seleccionable[this.populationSize];
 
         this.cross = (Cruce<T>) CruceFactory.getCruceType(crossType, isFunc5(), dimension);
@@ -267,13 +267,11 @@ public class AlgoritmoGenetico<T> {
         double fdesp = this.population[0].getFitness();
         boolean desp = false;
         for (Individuo i : this.population) {
-            if (i.getFitness() < 0) desp = true;
+            if (isMin() || i.getFitness() < 0) desp = true;
 
             double f = i.getFitness();
 
             if (!compare(f, fdesp)) fdesp = i.getFitness(); // buscar maximo/minimo
-
-
         }
 
         // Desplazar fitness y calcular el fitness total desplazado
@@ -285,9 +283,10 @@ public class AlgoritmoGenetico<T> {
             fitness = this.population[i].getFitness();
             if (desp) fitness = corrige(fitness, fdesp);
 
-            this.seleccionables[i] = new Seleccionable(fitness);
+            this.seleccionables[i] = new Seleccionable(i, fitness);
             this.totalFitness += fitness;
         }
+        Arrays.sort(this.seleccionables, Collections.reverseOrder());
 
         // Crear tabla
         double accProb = 0;
