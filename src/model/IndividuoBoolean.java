@@ -3,8 +3,7 @@ package model;
 import java.util.Random;
 
 public abstract class IndividuoBoolean extends Individuo<Boolean> {
-    public double[] min;
-    public double[] max;
+    public int[] genesSize;
     public double errorValue;
     public double totalSize;
 

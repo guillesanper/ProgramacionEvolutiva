@@ -21,7 +21,7 @@ public class IndividuoFactory {
             case 3:
                 return new IndividuoFuncion4(valError, d);
             case 4:
-                return new IndividuoFuncion5();
+                return new IndividuoFuncion5(d);
             default:
                 return null;
         }
