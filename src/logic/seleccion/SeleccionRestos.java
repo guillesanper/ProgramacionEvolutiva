@@ -8,6 +8,7 @@ public class SeleccionRestos extends Seleccion{
         int metidos = 0;
 
         for (int i = 0; i < tamPoblacion; i++) {
+            if (metidos == tamPoblacion) break;
             long apariciones = Math.round(list[i].getProb()*tamPoblacion);
 
             for (int j = 0; j < apariciones; j++) {
