@@ -74,7 +74,7 @@ public class AlgoritmoGenetico<T> {
             elitQ = new PriorityQueue<>(Collections.reverseOrder(comparator));
         else elitQ = new PriorityQueue<>(comparator);
 
-        this.selection = SeleccionFactory.getMetodoSeleccion(selectionType, best.getFitness());
+        this.selection = SeleccionFactory.getMetodoSeleccion(selectionType);
         this.seleccionables = new Seleccionable[this.populationSize];
 
         this.cross = (Cruce<T>) CruceFactory.getCruceType(crossType, isFunc5(), dimension);
@@ -267,13 +267,11 @@ public class AlgoritmoGenetico<T> {
         double fdesp = this.population[0].getFitness();
         boolean desp = false;
         for (Individuo i : this.population) {
-            if (i.getFitness() < 0) desp = true;
+            if (isMin() || i.getFitness() < 0) desp = true;
 
             double f = i.getFitness();
 
             if (!compare(f, fdesp)) fdesp = i.getFitness(); // buscar maximo/minimo
-
-
         }
 
         // Desplazar fitness y calcular el fitness total desplazado
@@ -285,9 +283,10 @@ public class AlgoritmoGenetico<T> {
             fitness = this.population[i].getFitness();
             if (desp) fitness = corrige(fitness, fdesp);
 
-            this.seleccionables[i] = new Seleccionable(fitness);
+            this.seleccionables[i] = new Seleccionable(i, fitness);
             this.totalFitness += fitness;
         }
+        Arrays.sort(this.seleccionables, Collections.reverseOrder());
 
         // Crear tabla
         double accProb = 0;
@@ -302,7 +301,59 @@ public class AlgoritmoGenetico<T> {
         }
 
         // Seleccionar
-        return selection.getSeleccion(this.seleccionables, this.populationSize);
+        int[] r = selection.getSeleccion(this.seleccionables, this.populationSize);
+        this.pintarSeleccion(r);
+        System.out.println("\n-------------------------------\n");
+        return r;
+    }
+
+    private void pintarSeleccion(int[] r) {
+        class rec {
+            int index;
+            double fitness;
+            double prob;
+
+            public rec(int index, double fitness, double prob) {
+                this.index = index;
+                this.fitness = fitness;
+                this.prob = prob;
+            }
+
+            @Override
+            public String toString() {
+                return this.index + ", " + this.fitness + ", " + this.prob;
+            }
+
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) return true;
+                if (o == null || getClass() != o.getClass()) return false;
+                rec rec = (rec) o;
+                return index == rec.index;
+            }
+
+            @Override
+            public int hashCode() {
+                return Objects.hashCode(index);
+            }
+        }
+
+        Map<rec, Integer> m = new HashMap<>();
+
+        for (int i : r) {
+            rec re = new rec(i, this.population[i].getFitness(), this.seleccionables[i].getProb());
+
+            if (m.containsKey(re)){
+                m.compute(re, (k, cont) -> cont + 1);
+            } else {
+                m.put(re, 1);
+            }
+        }
+
+        System.out.println("Seleccionados: " + m.size());
+        for (rec re : m.keySet()) {
+            System.out.println(m.get(re) + ": " + re);
+        }
     }
 
     private void reproduce(int pos1, int pos2, Individuo<T>[] populationCopy) {
