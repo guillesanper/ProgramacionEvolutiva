@@ -96,11 +96,6 @@ public class AlgoritmoGenetico<T> {
             // Mutación
             mutacion.mut_population(population);
 
-            // elitism
-            while (elitQ.size() != 0) {
-                population[populationSize - elitQ.size()] = elitQ.poll().getIndividuo();
-            }
-
             // Evaluamos poblacion
             evaluate_population();
         }
@@ -118,8 +113,6 @@ public class AlgoritmoGenetico<T> {
         for (int i = 0; i < populationSize; i++) {
             if (Math.random() < probCruce) {
                 chosen_for_cross[chosen_size++] = selec[i];
-            } else{
-                population[i] = selection[i];
             }
         }
 
@@ -132,32 +125,70 @@ public class AlgoritmoGenetico<T> {
                 reproduce(chosen_for_cross[i],chosen_for_cross[i + 1], selection);
         }
 
-        this.population = selection;
+        for (int i = 0; i < chosen_size; i++) {
+            this.population[chosen_for_cross[i]].chromosome = Arrays.copyOf(selection[chosen_for_cross[i]].chromosome,selection[chosen_for_cross[i]].chromosome.length);
+            this.population[chosen_for_cross[i]].fitness = this.population[chosen_for_cross[i]].getFitness();
+        }
+
     }
 
     private void reproduce(int pos1, int pos2, Individuo<T>[] populationCopy) {
-        Individuo<T> ind1 = populationCopy[pos1];
-        Individuo<T> ind2 = populationCopy[pos2];
-
-        // Copiar los cromosomas de los padres
-        T[] c1 = ind1.chromosome;
-        T[] c2 = ind2.chromosome;
-
-        // Aplicar cruce
+        T[] c1 = Arrays.copyOf(population[pos1].chromosome, population[pos1].chromosome.length);
+        T[] c2 = Arrays.copyOf(population[pos2].chromosome, population[pos2].chromosome.length);
         this.cross.cross(c1, c2);
-
-        // Asignar nuevos cromosomas a las nuevas instancias
-        ind1.chromosome = c1;
-        ind2.chromosome = c2;
-
-        //Evaluar individuos
-        ind1.fitness = ind1.getFitness();
-        ind2.fitness = ind2.getFitness();
-
-        // Reemplazar los individuos en la población copiada
-        population[pos1] = ind1;
-        population[pos2] = ind2;
+        populationCopy[pos1].chromosome = c1;
+        populationCopy[pos2].chromosome = c2;
     }
+
+
+    public Individuo<T>[] separaMejores(int tamElite) {
+        // Crear una lista de los mejores individuos
+        Individuo<T>[] elite = new Individuo[tamElite];
+
+        // Usar un PriorityQueue para ordenar los mejores
+        PriorityQueue<NodoIndividuo> eliteQueue;
+        Comparator<NodoIndividuo> comparator = Comparator.comparingDouble(NodoIndividuo::getValue);
+
+        // Si es minimización, usar orden normal; si es maximización, usar orden inverso
+        if (isMin()) {
+            eliteQueue = new PriorityQueue<>(comparator);
+        } else {
+            eliteQueue = new PriorityQueue<>(Collections.reverseOrder(comparator));
+        }
+
+        // Insertar individuos en la cola de prioridad
+        for (Individuo<T> ind : population) {
+            eliteQueue.add(new NodoIndividuo(ind.getFitness(), ind));
+            if (eliteQueue.size() > tamElite) {
+                eliteQueue.poll(); // Mantener solo los mejores
+            }
+        }
+
+        // Extraer los mejores individuos
+        for (int i = 0; i < tamElite; i++) {
+            elite[i] = eliteQueue.poll().getIndividuo();
+        }
+
+        return elite;
+    }
+
+    public void incluye(Individuo<T>[] elite) {
+        // Volver a integrar los individuos élite en la población
+        for (int i = 0; i < elite.length; i++) {
+            population[populationSize - 1 - i] = elite[i];
+        }
+    }
+
+
+    private boolean isElite(int index) {
+        for (NodoIndividuo nodo : elitQ) {
+            if (nodo.getIndividuo() == population[index]) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     /**
      * Copia la población actual para evitar modificaciones no deseadas
@@ -201,7 +232,8 @@ public class AlgoritmoGenetico<T> {
             //Actualizamos mejor o peor de la generacion si es necesario
             if (compare(fit, best_gen)) {
                 best_gen = fit;
-                bestGenInd = population[i];
+                bestGenInd = (Individuo<T>) IndividuoFactory.createIndividuo(funcIndex,errorValue,dimension);
+                bestGenInd.chromosome = Arrays.copyOf(population[i].chromosome,population[i].chromosome.length);
             }
             worst_gen = compare(fit, worst_gen) ? worst_gen : fit;
 
