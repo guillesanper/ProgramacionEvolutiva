@@ -1,9 +1,8 @@
 package model;
 
 public class IndividuoFuncion5 extends IndividuoDouble {
-    public IndividuoFuncion5() {
-        super(1);
-
+    public IndividuoFuncion5(int dimenion) {
+        super(dimenion);
         this.initGens(null, null);
     }
 
