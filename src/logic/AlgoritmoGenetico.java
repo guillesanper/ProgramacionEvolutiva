@@ -24,7 +24,6 @@ public class AlgoritmoGenetico<T> {
     private int populationSize;
 
     private Individuo<T> best;
-    private int best_pos;
 
     private double probCruce;
     private double probMutacion;
@@ -153,13 +152,6 @@ public class AlgoritmoGenetico<T> {
         populationCopy[pos2].chromosome = c2;
     }
 
-
-    public void incluye(Individuo<T>[] elite) {
-        // Volver a integrar los individuos élite en la población
-        for (int i = 0; i < elite.length; i++) {
-            population[populationSize - 1 - i] = elite[i];
-        }
-    }
 
 
     private boolean isElite(int index) {
