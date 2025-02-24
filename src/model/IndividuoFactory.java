@@ -4,7 +4,7 @@ import utils.Pair;
 
 public class IndividuoFactory {
 
-    private static final Pair<Double, Double> INTERVAL_FUNC1 = new Pair<>(20.0, 40.0);
+    private static final Pair<Double, Double> INTERVAL_FUNC1 = new Pair<>(0.0, 40.0);
     private static final Pair<Double, Double> INTERVAL_FUNC2 = new Pair<>(-110.0, 50.0);
     private static final Pair<Double, Double> INTERVAL_FUNC3 = new Pair<>(-200.0, 50.0);
     private static final Pair<Double, Double> INTERVAL_FUNC4 = new Pair<>(-15.0, 5.0);

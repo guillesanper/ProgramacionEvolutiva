@@ -4,6 +4,9 @@ import java.util.Random;
 
 public abstract class IndividuoDouble extends Individuo<Double> {
 
+    public double[] min;
+    public double[] max;
+
     public IndividuoDouble(int numGens) {
         this.rand = new Random();
         this.numGens = numGens;
@@ -11,18 +14,16 @@ public abstract class IndividuoDouble extends Individuo<Double> {
 
 
     public void initGens(double[] mins, double[] maxs) {
-        this.min = new double[numGens];
-        this.max = new double[numGens];
+        this.min = mins;
+        this.max = maxs;
 
-        for (int i = 0; i < this.numGens; i++) {
-            this.min[i] = mins[i];
-            this.max[i] = maxs[i];
+        this.chromosome = new Double[numGens];
+
+        for (int i = 0; i < numGens; i++) {
+            this.chromosome[i] = min[i] + rand.nextDouble() * (max[i] - min[i]); // Generación en el rango [min[i], max[i]]
         }
 
-        this.chromosome = new Double[this.numGens];
 
-        for(int i = 0; i < this.numGens; i++)
-            this.chromosome[i] = randomRange(this.min[i], this.max[i]);
     }
 
     @Override
@@ -32,16 +33,11 @@ public abstract class IndividuoDouble extends Individuo<Double> {
 
     @Override
     public void mutate(double p) {
-        // MUTACION UNIFORME
-
-        for (int i = 0; i < this.numGens; i++) {
+        for (int i = 0; i < numGens; i++) {
             if (this.rand.nextDouble() < p) {
-                this.chromosome[i] = randomRange(this.min[i], this.max[i]);
+                this.chromosome[i] = min[i] + rand.nextDouble() * (max[i] - min[i]); // Generación en el rango [min[i], max[i]]
             }
         }
-    }
 
-    private double randomRange(double lb, double ub) {
-        return lb + this.rand.nextDouble()*(ub-lb);
     }
 }

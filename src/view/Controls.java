@@ -34,15 +34,12 @@ public class Controls extends JPanel {
     private JComboBox<String> seleccion_CBox;
     private JComboBox<String> cruce_CBox;
     private JComboBox<String> mutacion_CBox;
+    private JComboBox<String> escalado_CBox;
     private JSpinner dimensionSpinner;
-    private JTextArea text_area;
     private Plot2DPanel plot2D;
     private Valores valores;
-    private Plot2DPanel plotHistory;
-    private JButton undoButton;
-    private JButton redoButton;
     private HistoryGraphic historyGraphic;
-    private JTextArea historyTextArea;
+    private JTextArea textArea;
 
 
     /**
@@ -64,8 +61,8 @@ public class Controls extends JPanel {
     private void init_GUI() {
         setLayout(new BorderLayout());
         JPanel leftPanel = crea_panel_izquiedo();
-        JPanel mediumPanel = crea_panel_derecho();
-        JPanel historyPanel = crea_panel_historial();
+        JPanel mediumPanel = crea_panel_central();
+        JPanel historyPanel = crea_panel_datos();
         add(leftPanel, BorderLayout.WEST);
         add(mediumPanel, BorderLayout.CENTER);
         add(historyPanel, BorderLayout.EAST);
@@ -93,15 +90,32 @@ public class Controls extends JPanel {
         String[] cruce = {"Mono-Punto",
                 "Uniforme"};
         String[] mutacion = {"Básica"};
+        String[] escalados={"Ninguno","Lineal","Sigma","Boltzmann"};
 
         funcion_CBox = new JComboBox<>(funciones);
+        funcion_CBox.addItemListener(e -> {
+            if (e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+                int selectedIndex = funcion_CBox.getSelectedIndex();
+                dimensionSpinner.setEnabled(selectedIndex == 3 || selectedIndex == 4);
+                if (selectedIndex != 3 && selectedIndex != 4) dimensionSpinner.setValue(2);
+
+                // Actualizar opciones de cruce dinámicamente
+                cruce_CBox.removeAllItems();
+                cruce_CBox.addItem("Mono-Punto");
+                cruce_CBox.addItem("Uniforme");
+
+                if (selectedIndex == 4) { // Solo para la última función
+                    cruce_CBox.addItem("Aritmetico");
+                    cruce_CBox.addItem("BLX-Alfa");
+                }
+            }
+        });
+
         seleccion_CBox = new JComboBox<>(seleccion);
         cruce_CBox = new JComboBox<>(cruce);
         mutacion_CBox = new JComboBox<>(mutacion);
+        escalado_CBox = new JComboBox<>(escalados);
 
-        text_area = new JTextArea(2, 2);
-        text_area.append("Esperando una ejecucion...");
-        text_area.setPreferredSize(new Dimension(300, 100));
         SpinnerNumberModel spinnerModel = new SpinnerNumberModel(2, 1, 10, 1);
         dimensionSpinner.setModel(spinnerModel);
         dimensionSpinner.setEnabled(false);
@@ -118,18 +132,42 @@ public class Controls extends JPanel {
         run_button.setToolTipText("Run button");
         ImageIcon icon = load_image("icons/run.png", 20, 20);
         run_button.setIcon(icon);
-        run_button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int tmp = Integer.parseInt(elitismo.getText());
-                if (tmp < 0 || tmp > 100) update_error("Elitismo porcentaje");
-                else run();
+        run_button.addActionListener(e -> {
+            int tmp = Integer.parseInt(elitismo.getText());
+            if (tmp < 0 || tmp > 100) update_error("Porcentaje de elitismo incorrecto");
+            else run();
+        });
+
+        // Panel para botones de historial
+        JPanel historyButtonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER)); // Centrar botones
+        JButton undoButton = new JButton("Deshacer");
+        JButton redoButton = new JButton("Rehacer");
+
+        undoButton.addActionListener(e -> {
+            if (historyGraphic.undo()) {
+                HistoryState state = historyGraphic.getState();
+                textArea.setText("Mejor Individuo: " + printIndividuo(state.getBest()) + "\n");
+                update_graph(state.getVals(), state.getInterval(), state.getBest(),false);
+                plot2D.revalidate();
+                plot2D.repaint();
             }
         });
+
+        redoButton.addActionListener(e -> {
+            if (historyGraphic.redo()) {
+                HistoryState state = historyGraphic.getState();
+                textArea.setText("Mejor Individuo: " +printIndividuo(state.getBest()) + "\n");
+                update_graph(state.getVals(), state.getInterval(), state.getBest(),false);
+            }
+        });
+
+        historyButtonsPanel.add(undoButton);
+        historyButtonsPanel.add(redoButton);
 
         gbc.anchor = GridBagConstraints.WEST;
         gbc.gridx = 0;
         gbc.gridy = 0;
+
 
         leftPanel.add(new JLabel("  Tam. Poblacion:"), gbc);
         gbc.gridy++;
@@ -149,16 +187,20 @@ public class Controls extends JPanel {
         gbc.gridy++;
         leftPanel.add(new JLabel("  Funcion:"), gbc);
         gbc.gridy++;
+        leftPanel.add(new JLabel("  Escalado"),gbc);
+        gbc.gridy++;
         leftPanel.add(new JLabel("  d:"), gbc);
         gbc.gridy++;
         leftPanel.add(new JLabel("  Elitismo:"), gbc);
         gbc.anchor = GridBagConstraints.EAST;
         gbc.gridy++;
-        leftPanel.add(new JLabel("Valor optimo:  "), gbc);
+
+        leftPanel.add(new JLabel("Historial de ejecuciones:  "), gbc);
         gbc.anchor = GridBagConstraints.WEST;
 
-        gbc.gridx++;
+
         gbc.gridy = 0;
+        gbc.gridx++;
         gbc.fill = GridBagConstraints.HORIZONTAL; // Hace que ocupen todo el ancho disponible
         gbc.weightx = 1.0; // Permite que se expandan horizontalmente
 
@@ -181,11 +223,25 @@ public class Controls extends JPanel {
         gbc.gridy++;
         leftPanel.add(funcion_CBox, gbc);
         gbc.gridy++;
+        leftPanel.add(escalado_CBox, gbc);
+        gbc.gridy++;
         leftPanel.add(dimensionSpinner, gbc);
         gbc.gridy++;
         leftPanel.add(elitismo, gbc);
+
+        JPanel runAndHistoryPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbcRun = new GridBagConstraints();
+        gbcRun.gridx = 0;
+        gbcRun.gridy = 0;
+        runAndHistoryPanel.add(historyButtonsPanel, gbcRun); // Botones arriba
+
+        gbcRun.gridy = 1;
+        runAndHistoryPanel.add(run_button, gbcRun); // Botón Run abajo
+
+        // Añadir el panel combinado al panel izquierdo
         gbc.gridy++;
-        leftPanel.add(text_area, gbc);
+        leftPanel.add(runAndHistoryPanel, gbc);
+
 
         gbc.anchor = GridBagConstraints.SOUTH;
         gbc.gridy++;
@@ -195,7 +251,7 @@ public class Controls extends JPanel {
     }
 
 
-    private JPanel crea_panel_derecho() {
+    private JPanel crea_panel_central() {
         JPanel rightPanel = new JPanel(new GridBagLayout());
         rightPanel.setPreferredSize(new Dimension(465, 600));
         GridBagConstraints gbc = new GridBagConstraints();
@@ -211,6 +267,7 @@ public class Controls extends JPanel {
         // Añade los nombres de los ejes.
         plot2D.getAxis(0).setLabelText("Generacion");
         plot2D.getAxis(1).setLabelText("Fitness");
+        plot2D.addLegend("SOUTH");
 
 
         rightPanel.add(plot2D, gbc);
@@ -232,15 +289,7 @@ public class Controls extends JPanel {
         plot2D.setFixedBounds(1, interval.get_first(), interval.get_second()); // Fix Y-axis bounds
 
 
-        plot2D.addLegend("SOUTH");
-
-        String texto_salida = "Fitness: " + best.getFitness() + "\n";
-        int cont = 1;
-        for (double cromosoma : best.getPhenotypes()) {
-            texto_salida += "Variable " + (cont++) + ": " + cromosoma + "\n";
-        }
-
-        text_area.setText(texto_salida);
+        textArea.setText(printIndividuo(best));
 
         if(save)
             this.historyGraphic.saveState(new HistoryState(vals, interval, best));
@@ -249,7 +298,7 @@ public class Controls extends JPanel {
 
     public void update_error(String s) {
         plot2D.removeAllPlots();
-        text_area.setText(s);
+        textArea.setText(s);
     }
 
     private void run() {
@@ -262,7 +311,7 @@ public class Controls extends JPanel {
         algoritmoGenetico.ejecuta(valores);
     }
 
-    private JPanel crea_panel_historial() {
+    private JPanel crea_panel_datos() {
         JPanel historyPanel = new JPanel(new GridBagLayout());
         historyPanel.setPreferredSize(new Dimension(300, 200));
         GridBagConstraints gbc = new GridBagConstraints();
@@ -271,45 +320,15 @@ public class Controls extends JPanel {
         gbc.gridx = 0;
         gbc.gridy = 0;
 
-        JLabel titleLabel = new JLabel("Mejor Individuo");
-        titleLabel.setFont(new Font("Arial", Font.PLAIN, 11));
-        historyPanel.add(titleLabel, gbc);
-
         gbc.gridy++;
-        historyTextArea = new JTextArea(5, 20);
-        historyTextArea.setEditable(false);
-        JScrollPane scrollPane = new JScrollPane(historyTextArea);
-        scrollPane.setPreferredSize(new Dimension(280, 100));
+        textArea = new JTextArea(20, 20);
+        textArea.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        scrollPane.setPreferredSize(new Dimension(280, 300));
+
+        historyPanel.add(new JLabel("Valor optimo:"));
+        gbc.gridy++;
         historyPanel.add(scrollPane, gbc);
-
-        gbc.gridy++;
-        JPanel buttonPanel = new JPanel(new FlowLayout());
-        JButton undoButton = new JButton("Deshacer");
-        JButton redoButton = new JButton("Rehacer");
-
-        undoButton.addActionListener(e -> {
-            if (historyGraphic.undo()) {
-                HistoryState state = historyGraphic.getState();
-                historyTextArea.setText("Mejor Individuo: " + printIndividuo(state.getBest()) + "\n");
-                update_graph(state.getVals(), state.getInterval(), state.getBest(),false);
-                plot2D.revalidate();
-                plot2D.repaint();
-            }
-        });
-
-        redoButton.addActionListener(e -> {
-            if (historyGraphic.redo()) {
-                HistoryState state = historyGraphic.getState();
-                historyTextArea.setText("Mejor Individuo: " +printIndividuo(state.getBest()) + "\n");
-                update_graph(state.getVals(), state.getInterval(), state.getBest(),false);
-            }
-        });
-
-        buttonPanel.add(undoButton);
-        buttonPanel.add(redoButton);
-
-        gbc.gridy++;
-        historyPanel.add(buttonPanel, gbc);
 
         return historyPanel;
     }
@@ -339,7 +358,8 @@ public class Controls extends JPanel {
                 Double.parseDouble(precision.getText()),
                 funcion_CBox.getSelectedIndex(),
                 Integer.parseInt(elitismo.getText()),
-                (int) dimensionSpinner.getValue());
+                (int) dimensionSpinner.getValue(),
+                (String) escalado_CBox.getSelectedItem());
     }
 
     public Valores get_valores() {

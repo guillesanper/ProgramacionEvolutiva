@@ -5,7 +5,9 @@ public class SeleccionTorneoProbabilistico extends Seleccion {
     private final double p;
 
     public SeleccionTorneoProbabilistico() {
-        this.p = 0.5;
+        this.min = false;
+        this.p = 0.8;
+
     }
 
     private Seleccionable bigger(Seleccionable a, Seleccionable b, Seleccionable c) {

@@ -13,13 +13,12 @@ public class SeleccionEstocasticoUniversal extends Seleccion{
 
         double seleccionado;
 
-        for (int i = 1; i <= tamPoblacion; i++){
-            seleccionado = (r+i-1)/tamPoblacion;
-            int j;
-            for (j = 1; j < marcas.length; j++) {
-                if (seleccionado >= marcas[j-1] && seleccionado < marcas[j]) break;
-            }
-            seleccion[metidos] = list[j-1].getIndex();
+        for (int i = 0; i < tamPoblacion; i++){
+            seleccionado = (r+i)/tamPoblacion;
+            int j = 0;
+            while (j < tamPoblacion - 1 && seleccionado > marcas[j]) j++;
+            seleccion[metidos] = Math.max(j - 1, 0); 
+
             metidos++;
         }
 

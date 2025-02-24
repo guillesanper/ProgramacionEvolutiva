@@ -1,5 +1,7 @@
 package logic.seleccion;
 
+import java.util.Arrays;
+
 public class SeleccionTruncamiento extends Seleccion {
 
     private final double trunc; // Proporción de la población seleccionada (ej. 0.5 o 0.1)
@@ -12,17 +14,23 @@ public class SeleccionTruncamiento extends Seleccion {
     public int[] getSeleccion(Seleccionable[] list, int tamPoblacion) {
         int[] seleccion = new int[tamPoblacion];
 
-        int numSeleccionados = (int) (trunc * tamPoblacion); // Número de individuos que sobreviven
-        int repeticiones = tamPoblacion / numSeleccionados;  // Cuántas veces se repite cada uno
+        // Número de individuos a seleccionar (al menos 1)
+        int numSeleccionados = Math.max(1, (int) (trunc * tamPoblacion));
+        int repeticiones = tamPoblacion / numSeleccionados; // Cuántas veces se repite cada uno
 
-        int metidos = 0;
+        // Ordenar los índices en base al fitness (de mayor a menor)
+        Seleccionable[] ordenados = Arrays.copyOf(list, tamPoblacion);
+        Arrays.sort(ordenados, (a, b) -> Double.compare(b.getFitness(), a.getFitness()));
 
-        // Llenar la selección con los mejores individuos según trunc
+
+        int pos = 0;
         for (int i = 0; i < numSeleccionados; i++) {
-            for (int j = 0; j < repeticiones; j++) {
-                seleccion[metidos++] = list[i].getIndex();
+            for (int j = 0; j < repeticiones && pos < tamPoblacion; j++) {
+                seleccion[pos++] = Arrays.asList(list).indexOf(ordenados[i]); // Obtener índice original
             }
         }
+
+
         return seleccion;
     }
 }

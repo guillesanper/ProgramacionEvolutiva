@@ -12,7 +12,8 @@ public class SeleccionFactory {
             case "Estocastico Universal":
                 return new SeleccionEstocasticoUniversal();
             case "Truncamiento":
-                return new SeleccionTruncamiento();
+                return new SeleccionTruncamiento(0.5);
+
             case "Restos":
                 return new SeleccionRestos();
             case "Ranking":
