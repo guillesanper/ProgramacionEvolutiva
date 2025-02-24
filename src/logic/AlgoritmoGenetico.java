@@ -70,9 +70,7 @@ public class AlgoritmoGenetico<T> {
 
 
         Comparator<NodoIndividuo> comparator = Comparator.comparingDouble(NodoIndividuo::getValue);
-        if (funcIndex != 0)
-            elitQ = new PriorityQueue<>(Collections.reverseOrder(comparator));
-        else elitQ = new PriorityQueue<>(comparator);
+        elitQ = isMin() ? new PriorityQueue<>(Collections.reverseOrder(comparator)) : new PriorityQueue<>(comparator);
 
         this.selection = SeleccionFactory.getMetodoSeleccion(selectionType, best.getFitness());
         this.seleccionables = new Seleccionable[this.populationSize];
@@ -95,6 +93,11 @@ public class AlgoritmoGenetico<T> {
 
             // Mutación
             mutacion.mut_population(population);
+
+            // elitism
+            while(elitQ.size()!=0) {
+                population[populationSize-elitQ.size()]=elitQ.poll().getIndividuo();
+            }
 
             // Evaluamos poblacion
             evaluate_population();
@@ -122,12 +125,16 @@ public class AlgoritmoGenetico<T> {
 
         // Aplicar cruce en la copia para evitar sobrescribir individuos seleccionados múltiples veces
         for (int i = 0; i < chosen_size - 1; i += 2) {
-                reproduce(chosen_for_cross[i],chosen_for_cross[i + 1], selection);
+            if(!isElite(chosen_for_cross[i]) && !isElite(chosen_for_cross[i+1])) {
+                reproduce(chosen_for_cross[i], chosen_for_cross[i + 1], selection);
+            }
         }
 
         for (int i = 0; i < chosen_size; i++) {
-            this.population[chosen_for_cross[i]].chromosome = Arrays.copyOf(selection[chosen_for_cross[i]].chromosome,selection[chosen_for_cross[i]].chromosome.length);
-            this.population[chosen_for_cross[i]].fitness = this.population[chosen_for_cross[i]].getFitness();
+            if(!isElite(chosen_for_cross[i]) ) {
+                this.population[chosen_for_cross[i]].chromosome = Arrays.copyOf(selection[chosen_for_cross[i]].chromosome, selection[chosen_for_cross[i]].chromosome.length);
+                this.population[chosen_for_cross[i]].fitness = this.population[chosen_for_cross[i]].getFitness();
+            }
         }
 
     }

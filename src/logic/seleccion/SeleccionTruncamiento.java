@@ -1,7 +1,6 @@
 package logic.seleccion;
 
-import java.util.Comparator;
-import java.util.stream.IntStream;
+import java.util.Arrays;
 
 public class SeleccionTruncamiento extends Seleccion {
 
@@ -15,27 +14,21 @@ public class SeleccionTruncamiento extends Seleccion {
     public int[] getSeleccion(Seleccionable[] list, int tamPoblacion) {
         int[] seleccion = new int[tamPoblacion];
 
-        int numSeleccionados = (int) (trunc * tamPoblacion); // Número de individuos que sobreviven
-        int repeticiones = tamPoblacion / numSeleccionados;  // Cuántas veces se repite cada uno
+        // Número de individuos a seleccionar (al menos 1)
+        int numSeleccionados = Math.max(1, (int) (trunc * tamPoblacion));
+        int repeticiones = tamPoblacion / numSeleccionados; // Cuántas veces se repite cada uno
 
-        int[] indicesOrdenados = ordenarIndicesPorFitness(list, tamPoblacion);
+        // Ordenar los índices en base al fitness (de mayor a menor)
+        Seleccionable[] ordenados = Arrays.copyOf(list, tamPoblacion);
+        Arrays.sort(ordenados, (a, b) -> Double.compare(b.getFitness(), a.getFitness()));
+
         int pos = 0;
-
-        // Llenar la selección con los mejores individuos según trunc
         for (int i = 0; i < numSeleccionados; i++) {
-            for (int j = 0; j < repeticiones; j++) {
-                seleccion[pos++] = indicesOrdenados[i];
+            for (int j = 0; j < repeticiones && pos < tamPoblacion; j++) {
+                seleccion[pos++] = Arrays.asList(list).indexOf(ordenados[i]); // Obtener índice original
             }
         }
-        return seleccion;
-    }
 
-    private int[] ordenarIndicesPorFitness(Seleccionable[] list, int tamPoblacion) {
-        // Ordenar índices por fitness (ascendente si minimizamos, descendente si maximizamos)
-        return IntStream.range(0, tamPoblacion)
-                .boxed()
-                .sorted(Comparator.comparingDouble(i -> -1*list[i].getFitness())) // Ordena por fitness
-                .mapToInt(i -> i)
-                .toArray();
+        return seleccion;
     }
 }

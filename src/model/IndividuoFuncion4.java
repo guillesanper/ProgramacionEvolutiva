@@ -28,10 +28,10 @@ public class IndividuoFuncion4 extends IndividuoBoolean {
 
         for (int i = 0; i < this.d; i++) {
             double firstSin = Math.sin(this.getPhenotype(i));
-            double secondSin = Math.sin(i*Math.pow(this.getPhenotype(i), 2) / Math.PI);
-            sum += firstSin*Math.pow(secondSin, 2*this.m);
+            double secondSin = Math.sin(((i + 1) * Math.pow(this.getPhenotype(i), 2)) / Math.PI);
+            sum += firstSin * Math.pow(secondSin, 2 * this.m);
         }
 
-        return sum*-1;
+        return - sum ;
     }
 }

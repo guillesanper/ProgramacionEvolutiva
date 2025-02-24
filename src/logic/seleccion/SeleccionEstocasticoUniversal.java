@@ -14,11 +14,11 @@ public class SeleccionEstocasticoUniversal extends Seleccion{
 
         double seleccionado;
 
-        for (int i = 1; i <= tamPoblacion; i++){
-            seleccionado = (r+i-1)/tamPoblacion;
+        for (int i = 0; i < tamPoblacion; i++){
+            seleccionado = (r+i)/tamPoblacion;
             int j = 0;
-            while (seleccionado < marcas[j]) j++;
-            seleccion[metidos] = j-1;
+            while (j < tamPoblacion - 1 && seleccionado > marcas[j]) j++;
+            seleccion[metidos] = Math.max(j - 1, 0); // Evita valores negativos
             metidos++;
         }
 

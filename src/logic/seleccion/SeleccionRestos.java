@@ -10,9 +10,9 @@ public class SeleccionRestos extends Seleccion{
         for (int i = 0; i < tamPoblacion; i++) {
             long apariciones = Math.round(list[i].getProb()*tamPoblacion);
 
+            if(apariciones < tamPoblacion-metidos )
             for (int j = 0; j < apariciones; j++) {
-                seleccion[metidos] = i;
-                metidos++;
+                seleccion[metidos++] = i;
             }
         }
 
