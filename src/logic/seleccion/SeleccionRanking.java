@@ -5,7 +5,7 @@ public class SeleccionRanking extends Seleccion {
         double _beta = 1.5;
 
         double accProb = 0.0;
-        for (int i = 0; i < tamPoblacion; ++i) {
+        for (int i = tamPoblacion-1; i >= 0; --i) {
 
             double probOfIth = (double) i / tamPoblacion;
             probOfIth *= 2 * (_beta - 1);

@@ -14,7 +14,7 @@ public class SeleccionRuleta extends Seleccion{
         double x;
         while (seleccionados < tamPoblacion) {
             x = this.rand.nextDouble();
-            for(int i = 0; i < tamPoblacion; i++) {
+            for(int i = tamPoblacion-1; i >= 0; i--) {
                 if(list[i].getAccProb() >= x) {
                     seleccion[seleccionados] = list[i].getIndex();
                     seleccionados++;

@@ -95,11 +95,14 @@ public class AlgoritmoGenetico<T> {
             // Seleccion
             selec = this.select();
 
+            this.population = this.copyPopulation(selec);
+
             // Cruce
             cross_population(selec);
 
             // Mutación
             mutate_population();
+
 
             // Elitismo
             while (elitQ.size() != 0) {
@@ -141,6 +144,7 @@ public class AlgoritmoGenetico<T> {
             }
         }
 
+        // Sustituir por hijos
         for (int i = 0; i < chosen_size; i++) {
             if (!isElite(chosen_for_cross[i])) {
                 this.population[chosen_for_cross[i]].chromosome = Arrays.copyOf(selection[chosen_for_cross[i]].chromosome, selection[chosen_for_cross[i]].chromosome.length);
@@ -309,7 +313,6 @@ public class AlgoritmoGenetico<T> {
         // Seleccionar
         return selection.getSeleccion(this.seleccionables, this.populationSize);
     }
-
 
     private void initialize_population(int func_index, double errorValue) {
         this.population = new Individuo[populationSize];
