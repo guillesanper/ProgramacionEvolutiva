@@ -95,8 +95,7 @@ public class AlgoritmoGenetico<T> {
             // Seleccion
             selec = this.select();
 
-            this.population = this.copyPopulation(selec);
-
+            //this.population = copyPopulation(selec);
             // Cruce
             cross_population(selec);
 
@@ -306,10 +305,7 @@ public class AlgoritmoGenetico<T> {
             this.seleccionables[i].setProb(prob);
             this.seleccionables[i].setAccProb(accProb);
             Seleccionable s = seleccionables[i];
-            //System.out.println("S"+i + ": (" + s.getFitness() + ", " + s.getProb() + ", " + s.getAccProb() + ")");
         }
-        //System.out.println("\n-------------------\n");
-
         // Seleccionar
         return selection.getSeleccion(this.seleccionables, this.populationSize);
     }
