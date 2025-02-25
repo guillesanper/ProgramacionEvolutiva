@@ -7,7 +7,7 @@ public class SeleccionTruncamiento extends Seleccion {
     private final double trunc; // Proporción de la población seleccionada (ej. 0.5 o 0.1)
 
     public SeleccionTruncamiento() {
-        this.trunc = 0.5; // 50%
+        this.trunc = 0.3; // 50%
     }
 
     @Override

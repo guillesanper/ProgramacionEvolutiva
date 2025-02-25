@@ -79,7 +79,7 @@ public class AlgoritmoGenetico<T> {
         this.seleccionables = new Seleccionable[this.populationSize];
 
         this.cross = (Cruce<T>) CruceFactory.getCruceType(crossType, isFunc5(), dimension);
-        this.mutacion = new Mutacion(probMutacion, eliteSize);
+        this.mutacion = new Mutacion(probMutacion);
 
         // Almacena el progreso de las generaciones
         generationProgress = new double[3][generations + 1];
@@ -88,8 +88,10 @@ public class AlgoritmoGenetico<T> {
         evaluate_population();
 
         while (generations-- != 0) {
+            // Escalado opcional
             if(scalingActivated)
                 scaling.escalarFitness(this.population);
+
             // Seleccion
             selec = this.select();
 
@@ -97,9 +99,9 @@ public class AlgoritmoGenetico<T> {
             cross_population(selec);
 
             // Mutación
-            mutacion.mut_population(population);
+            mutate_population();
 
-            // elitism
+            // Elitismo
             while (elitQ.size() != 0) {
                 population[populationSize - elitQ.size()] = elitQ.poll().getIndividuo();
             }
@@ -109,6 +111,10 @@ public class AlgoritmoGenetico<T> {
         }
 
         controlPanel.update_graph(generationProgress, graphIntervals, best, true);
+    }
+
+    private void mutate_population(){
+        mutacion.mut_population(population,elitQ);
     }
 
     private void cross_population(int[] selec) {
@@ -195,6 +201,7 @@ public class AlgoritmoGenetico<T> {
             fit = population[i].getFitness();
             population[i].fitness = fit;
             totalFitness += fit;
+
 
             // Agregar a la cola de elitismo si es necesario
             if (elitQ.size() < eliteSize)

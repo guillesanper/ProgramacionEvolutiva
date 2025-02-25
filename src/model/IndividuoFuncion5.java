@@ -31,7 +31,7 @@ public class IndividuoFuncion5 extends IndividuoDouble {
             sum += firstSin * Math.pow(secondSin, 2 * this.m);
         }
 
-        return - sum ;
+        return -sum ;
 
     }
 }

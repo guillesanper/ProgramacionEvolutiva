@@ -40,14 +40,15 @@ public abstract class IndividuoBoolean extends Individuo<Boolean> {
     @Override
     public double getPhenotype(int n) {
         Boolean[] v = new Boolean[this.genesSize[n]];
-        if (n == 0) {
-            for(int i = 0; i < this.genesSize[n]; i++)
-                v[i] = this.chromosome[i];
+        int inicio = 0;
+        for(int i = 0; i < n;i++){
+            inicio += genesSize[i];
         }
-        else {
-            for(int i = 0; i < this.genesSize[n]; i++)
-                v[i] = this.chromosome[this.genesSize[n-1]+i];
+
+        for(int i = 0; i < genesSize[n]; i++){
+            v[i] = this.chromosome[inicio + i];
         }
+
         return this.min[n] + this.bin2dec(v) * ((this.max[n] - this.min[n]) / (Math.pow(2, this.genesSize[n])-1));
     }
 

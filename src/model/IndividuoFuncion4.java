@@ -32,6 +32,6 @@ public class IndividuoFuncion4 extends IndividuoBoolean {
             sum += firstSin * Math.pow(secondSin, 2 * this.m);
         }
 
-        return - sum ;
+        return -sum ;
     }
 }
