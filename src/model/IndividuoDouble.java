@@ -12,6 +12,11 @@ public abstract class IndividuoDouble extends Individuo<Double> {
         this.numGens = numGens;
     }
 
+    // Método auxiliar que genera un double en [0,1] inclusivo.
+    protected double nextDoubleInclusive() {
+        long bits = (rand.nextLong() & Long.MAX_VALUE); // Valor en [0, Long.MAX_VALUE]
+        return (double) bits / (double) Long.MAX_VALUE;  // Valor en [0, 1] inclusivo
+    }
 
     public void initGens(double[] mins, double[] maxs) {
         this.min = mins;
@@ -20,10 +25,9 @@ public abstract class IndividuoDouble extends Individuo<Double> {
         this.chromosome = new Double[numGens];
 
         for (int i = 0; i < numGens; i++) {
-            this.chromosome[i] = min[i] + rand.nextDouble() * (max[i] - min[i]); // Generación en el rango [min[i], max[i]]
+            // Ahora se usa nextDoubleInclusive() para alcanzar el máximo
+            this.chromosome[i] = mins[i] + nextDoubleInclusive() * (maxs[i] - mins[i]);
         }
-
-
     }
 
     @Override
@@ -35,9 +39,9 @@ public abstract class IndividuoDouble extends Individuo<Double> {
     public void mutate(double p) {
         for (int i = 0; i < numGens; i++) {
             if (this.rand.nextDouble() < p) {
-                this.chromosome[i] = min[i] + rand.nextDouble() * (max[i] - min[i]); // Generación en el rango [min[i], max[i]]
+                // También se usa nextDoubleInclusive() en la mutación
+                this.chromosome[i] = min[i] + nextDoubleInclusive() * (max[i] - min[i]);
             }
         }
-
     }
 }

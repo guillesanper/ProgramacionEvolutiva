@@ -1,36 +1,46 @@
 package logic.seleccion;
 
+import model.Individuo;
+
 import java.util.Arrays;
+import java.util.Comparator;
 
 public class SeleccionTruncamiento extends Seleccion {
 
     private final double trunc; // Proporción de la población seleccionada (ej. 0.5 o 0.1)
 
     public SeleccionTruncamiento() {
-        this.trunc = 0.3; // 50%
+        this.trunc = 0.6; // 50%
     }
 
     @Override
     public int[] getSeleccion(Seleccionable[] list, int tamPoblacion) {
         int[] seleccion = new int[tamPoblacion];
 
-        // Número de individuos a seleccionar (al menos 1)
-        int numSeleccionados = Math.max(1, (int) (trunc * tamPoblacion));
-        int repeticiones = tamPoblacion / numSeleccionados; // Cuántas veces se repite cada uno
+        // Ordenar los individuos por fitness en orden descendente (mejor fitness primero)
+        Arrays.sort(list, Comparator.comparingDouble(Seleccionable::getFitness).reversed());
 
-        // Ordenar los índices en base al fitness (de mayor a menor)
-        Seleccionable[] ordenados = Arrays.copyOf(list, tamPoblacion);
-        Arrays.sort(ordenados, (a, b) -> Double.compare(b.getFitness(), a.getFitness()));
+        // Determinar el número de individuos seleccionables según trunc
+        int numSeleccionables = (int) (list.length * this.trunc);
+        numSeleccionables = Math.max(numSeleccionables, 1); // Asegurar al menos 1 individuo seleccionado
 
+        // Cantidad de veces que cada seleccionado se debe repetir
+        int repeticiones = tamPoblacion / numSeleccionables;
+        int resto = tamPoblacion % numSeleccionables; // Restantes a distribuir
 
-        int pos = 0;
-        for (int i = 0; i < numSeleccionados; i++) {
-            for (int j = 0; j < repeticiones && pos < tamPoblacion; j++) {
-                seleccion[pos++] = Arrays.asList(list).indexOf(ordenados[i]); // Obtener índice original
+        int index = 0;
+        for (int i = 0; i < numSeleccionables; i++) {
+            for (int j = 0; j < repeticiones; j++) {
+                seleccion[index++] = list[i].getIndex();
             }
         }
 
+        // Distribuir el resto equitativamente a los primeros seleccionados
+        for (int i = 0; i < resto; i++) {
+            seleccion[index++] = list[i].getIndex();
+        }
 
         return seleccion;
     }
+
 }

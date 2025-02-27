@@ -5,31 +5,32 @@ import java.util.Random;
 public class CruceBLXalpha extends Cruce<Double> {
 
     private double alpha = 0.3;
+    private Random rand = new Random();
 
     public CruceBLXalpha(int tamCromosoma) {
         super(tamCromosoma);
     }
 
     /*
-    * - Se define el intervalo I = max(xi,yi) - min(xi,yi)
-    * - Se amplia el intervalo en ambos lados con alpha de la siguiente manera:
-    *           nuevo_rango = [min-I*alpha, max+I*alpha]
-    * La expresion se puede abreviar->(max+I⋅alpha)−(min−I⋅alpha)=I+Ialpha+Ialpha=I(1+2alpha)
-    * - Como utilizamos nextDouble-> min−Ialpha+rand.nextDouble()*2Ialpha
-     * */
-
+     * Para dos genes x e y:
+     * - Se define I = max(x,y) - min(x,y)
+     * - El intervalo extendido es: [min - I*alpha, max + I*alpha]
+     * - Su ancho es I * (1 + 2*alpha)
+     * Se genera cada nuevo gen con:
+     *    valor = min - I*alpha + rand.nextDouble() * (I*(1+2*alpha))
+     */
     @Override
     public void cross(Double[] c1, Double[] c2) {
         double min, max, I;
-        Random rand = new Random();
         for (int i = 0; i < this.tamCromosoma; i++) {
             min = Math.min(c1[i], c2[i]);
             max = Math.max(c1[i], c2[i]);
             I = max - min;
             if (I != 0) {
-                double range = 2 * I * alpha;
-                c1[i] = min - I * alpha + rand.nextDouble() * range;
-                c2[i] = min - I * alpha + rand.nextDouble() * range;
+                double range = I * (1 + 2 * alpha);
+                double lowerBound = min - I * alpha;
+                c1[i] = lowerBound + rand.nextDouble() * range;
+                c2[i] = lowerBound + rand.nextDouble() * range;
             }
         }
     }
