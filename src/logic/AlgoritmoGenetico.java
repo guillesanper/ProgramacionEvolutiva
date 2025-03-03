@@ -118,36 +118,70 @@ public class AlgoritmoGenetico<T> {
     }
 
     private void cross_population(int[] selec) {
-        // Crear copia de la población antes del cruce
-        Individuo<T>[] selection = copyPopulation(selec);
-        // De los seleccionados, los indices de los que se reproduciran
-        int[] chosen_for_cross = new int[populationSize];
-        int chosen_size = 0;
+        // Crear una nueva población para almacenar los resultados
+        Individuo<T>[] newPopulation = new Individuo[populationSize];
+
+        // Primero, inicializar todos los individuos de la nueva población
+        for (int i = 0; i < populationSize; i++) {
+            newPopulation[i] = (Individuo<T>) IndividuoFactory.createIndividuo(funcIndex, errorValue, dimension);
+        }
+
+        // Determinar cuáles individuos se cruzarán
+        boolean[] willCross = new boolean[populationSize];
+        int crossCount = 0;
 
         for (int i = 0; i < populationSize; i++) {
-            if (Math.random() < probCruce) {
-                chosen_for_cross[chosen_size++] = selec[i];
+            willCross[i] = Math.random() < probCruce && !isElite(selec[i]);
+            if (willCross[i]) crossCount++;
+        }
+
+        // Asegurar un número par de cruces
+        if (crossCount % 2 == 1) {
+            // Encontrar el último individuo seleccionado para cruce y desmarcarlo
+            for (int i = populationSize - 1; i >= 0; i--) {
+                if (willCross[i]) {
+                    willCross[i] = false;
+                    crossCount--;
+                    break;
+                }
             }
         }
 
-        if (chosen_size % 2 == 1) {
-            chosen_size--;
-        }
+        // Realizar los cruces en pares
+        int crossIndex = 0;
+        for (int i = 0; i < populationSize; i++) {
+            if (willCross[i]) {
+                // Buscar la pareja para el cruce
+                int j = i + 1;
+                while (j < populationSize && (!willCross[j] || isElite(selec[j]))) {
+                    j++;
+                }
 
-        // Aplicar cruce en la copia para evitar sobrescribir individuos seleccionados múltiples veces
-        for (int i = 0; i < chosen_size - 1; i += 2) {
-            if (!isElite(chosen_for_cross[i]) && !isElite(chosen_for_cross[i + 1])) {
-                reproduce(chosen_for_cross[i], chosen_for_cross[i + 1], selection);
+                if (j < populationSize) {
+                    // Realizar el cruce y guardar en la nueva población
+                    T[] c1 = Arrays.copyOf(population[selec[i]].chromosome, population[selec[i]].chromosome.length);
+                    T[] c2 = Arrays.copyOf(population[selec[j]].chromosome, population[selec[j]].chromosome.length);
+
+                    this.cross.cross(c1, c2);
+
+                    newPopulation[i].chromosome = c1;
+                    newPopulation[j].chromosome = c2;
+
+                    willCross[j] = false; // Marcar como ya procesado
+                }
+            } else {
+                // Copiar directamente el individuo seleccionado a la nueva población
+                newPopulation[i].chromosome = Arrays.copyOf(population[selec[i]].chromosome,
+                        population[selec[i]].chromosome.length);
             }
         }
 
-        for (int i = 0; i < chosen_size; i++) {
-            if (!isElite(chosen_for_cross[i])) {
-                this.population[chosen_for_cross[i]].chromosome = Arrays.copyOf(selection[chosen_for_cross[i]].chromosome, selection[chosen_for_cross[i]].chromosome.length);
-                this.population[chosen_for_cross[i]].fitness = this.population[chosen_for_cross[i]].getFitness();
+        // Reemplazar la población antigua con la nueva
+        for (int i = 0; i < populationSize; i++) {
+            if (!isElite(i)) { // Preservar elites
+                population[i].chromosome = Arrays.copyOf(newPopulation[i].chromosome, newPopulation[i].chromosome.length);
             }
         }
-
     }
 
     private void reproduce(int pos1, int pos2, Individuo<T>[] populationCopy) {

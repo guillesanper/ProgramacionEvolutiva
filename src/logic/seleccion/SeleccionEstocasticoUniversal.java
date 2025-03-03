@@ -4,22 +4,23 @@ public class SeleccionEstocasticoUniversal extends Seleccion{
     @Override
     public int[] getSeleccion(Seleccionable[] list, int tamPoblacion) {
         int[] seleccion = new int[tamPoblacion];
-        int metidos = 0;
 
-        double r = this.rand.nextDouble()*((double) 1 /tamPoblacion);
+        // Generar un valor aleatorio entre 0 y 1/tamPoblacion
+        double r = this.rand.nextDouble() / tamPoblacion;
 
-        double[] marcas = new double[tamPoblacion];
-        for (int i = 0; i < tamPoblacion; i++) marcas[i] = list[i].getAccProb();
+        // Para cada punto de selección
+        for (int i = 0; i < tamPoblacion; i++) {
+            // Calcular el punto de selección actual
+            double punto = r + ((double) i / tamPoblacion);
 
-        double seleccionado;
-
-        for (int i = 0; i < tamPoblacion; i++){
-            seleccionado = (r+i)/tamPoblacion;
+            // Encontrar el individuo correspondiente a este punto
             int j = 0;
-            while (j < tamPoblacion - 1 && seleccionado > marcas[j]) j++;
-            seleccion[metidos] = Math.max(j - 1, 0); 
+            while (j < tamPoblacion && punto > list[j].getAccProb()) {
+                j++;
+            }
 
-            metidos++;
+            // Almacenar el índice del individuo seleccionado
+            seleccion[i] = list[j].getIndex();
         }
 
         return seleccion;

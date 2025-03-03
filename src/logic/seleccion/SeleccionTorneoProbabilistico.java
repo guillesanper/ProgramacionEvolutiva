@@ -6,7 +6,6 @@ public class SeleccionTorneoProbabilistico extends Seleccion {
 
     public SeleccionTorneoProbabilistico() {
         this.p = 0.6;
-
     }
 
     private Seleccionable bigger(Seleccionable a, Seleccionable b, Seleccionable c) {
@@ -41,7 +40,8 @@ public class SeleccionTorneoProbabilistico extends Seleccion {
         Seleccionable b = list[ind2];
         Seleccionable c = list[ind3];
 
-        if (this.rand.nextDouble() <= p) return smaller(a, b, c).getIndex();
-        return bigger(a, b, c).getIndex();
+        // Corregido: El mejor individuo (mayor fitness) debe ser seleccionado con probabilidad p
+        if (this.rand.nextDouble() <= p) return bigger(a, b, c).getIndex();
+        return smaller(a, b, c).getIndex();
     }
 }
