@@ -117,79 +117,33 @@ public class AlgoritmoGenetico<T> {
         mutacion.mut_population(population,elitQ);
     }
 
-    private void cross_population(int[] selec) {
-        // Crear una nueva población para almacenar los resultados
-        Individuo<T>[] newPopulation = new Individuo[populationSize];
+    private void cross_population(int[] seleccionados) {
 
-        // Primero, inicializar todos los individuos de la nueva población
-        for (int i = 0; i < populationSize; i++) {
-            newPopulation[i] = (Individuo<T>) IndividuoFactory.createIndividuo(funcIndex, errorValue, dimension);
-        }
-
-        // Determinar cuáles individuos se cruzarán
-        boolean[] willCross = new boolean[populationSize];
-        int crossCount = 0;
+        this.population = this.copyPopulation(seleccionados);
+        int numCruce = 0;
+        int[] to_cross = new int[populationSize];
 
         for (int i = 0; i < populationSize; i++) {
-            willCross[i] = Math.random() < probCruce && !isElite(selec[i]);
-            if (willCross[i]) crossCount++;
-        }
-
-        // Asegurar un número par de cruces
-        if (crossCount % 2 == 1) {
-            // Encontrar el último individuo seleccionado para cruce y desmarcarlo
-            for (int i = populationSize - 1; i >= 0; i--) {
-                if (willCross[i]) {
-                    willCross[i] = false;
-                    crossCount--;
-                    break;
-                }
+            if (this.probCruce > Math.random()) {
+                to_cross[numCruce++] = i;
             }
         }
 
-        // Realizar los cruces en pares
-        int crossIndex = 0;
-        for (int i = 0; i < populationSize; i++) {
-            if (willCross[i]) {
-                // Buscar la pareja para el cruce
-                int j = i + 1;
-                while (j < populationSize && (!willCross[j] || isElite(selec[j]))) {
-                    j++;
-                }
-
-                if (j < populationSize) {
-                    // Realizar el cruce y guardar en la nueva población
-                    T[] c1 = Arrays.copyOf(population[selec[i]].chromosome, population[selec[i]].chromosome.length);
-                    T[] c2 = Arrays.copyOf(population[selec[j]].chromosome, population[selec[j]].chromosome.length);
-
-                    this.cross.cross(c1, c2);
-
-                    newPopulation[i].chromosome = c1;
-                    newPopulation[j].chromosome = c2;
-
-                    willCross[j] = false; // Marcar como ya procesado
-                }
-            } else {
-                // Copiar directamente el individuo seleccionado a la nueva población
-                newPopulation[i].chromosome = Arrays.copyOf(population[selec[i]].chromosome,
-                        population[selec[i]].chromosome.length);
-            }
+        if (numCruce % 2 != 0) {
+            numCruce--;
         }
 
-        // Reemplazar la población antigua con la nueva
-        for (int i = 0; i < populationSize; i++) {
-            if (!isElite(i)) { // Preservar elites
-                population[i].chromosome = Arrays.copyOf(newPopulation[i].chromosome, newPopulation[i].chromosome.length);
-            }
+        for (int i = 0; i < numCruce; i += 2) {
+            reproduce(to_cross[i],to_cross[i+1]);
         }
     }
 
-    private void reproduce(int pos1, int pos2, Individuo<T>[] populationCopy) {
+    private void reproduce(int pos1, int pos2) {
         T[] c1 = Arrays.copyOf(population[pos1].chromosome, population[pos1].chromosome.length);
         T[] c2 = Arrays.copyOf(population[pos2].chromosome, population[pos2].chromosome.length);
         this.cross.cross(c1, c2);
-        populationCopy[pos1].chromosome = c1;
-        populationCopy[pos2].chromosome = c2;
+        population[pos1].chromosome = c1;
+        population[pos2].chromosome = c2;
     }
 
 
