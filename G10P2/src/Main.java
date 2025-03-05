@@ -12,13 +12,6 @@ public class Main {
             @Override
             public void run() {
                 try {
-                    Mapa mapa = new Mapa();
-                    IndividuoRobot ir = (IndividuoRobot) IndividuoFactory.createIndividuo(0,0.001,2,mapa);
-                    String s = "";
-                    for(Point p:mapa.calcularRutaCompleta(ir)){
-                        s.concat(p.toString());
-                    }
-                    System.out.println(s);
                     UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
                 } catch (Exception e) {
                     e.printStackTrace();

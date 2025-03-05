@@ -211,63 +211,85 @@ public class Mapa {
         }
 
         PriorityQueue<Nodo> openSet = new PriorityQueue<>(Comparator.comparingDouble(n -> n.f));
-        boolean[][] cerrados = new boolean[FILAS][COLS];
-        double[][] gScore = new double[FILAS][COLS];
-        for (int i = 0; i < FILAS; i++) {
-            Arrays.fill(gScore[i], Double.POSITIVE_INFINITY);
-        }
+        Set<Point> cerrados = new HashSet<>();
+        Map<Point, Nodo> mejorNodo = new HashMap<>();
 
         Nodo inicioNodo = new Nodo(inicio.x, inicio.y, 0, heuristica(inicio.x, inicio.y, fin.x, fin.y), null);
         openSet.add(inicioNodo);
-        gScore[inicio.x][inicio.y] = 0;
+        mejorNodo.put(new Point(inicio.x, inicio.y), inicioNodo);
 
         int[][] direcciones = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } };
 
-        Nodo destinoNodo = null;
         while (!openSet.isEmpty()) {
             Nodo actual = openSet.poll();
+            Point puntoActual = new Point(actual.x, actual.y);
+
             if (actual.x == fin.x && actual.y == fin.y) {
-                destinoNodo = actual;
-                break;
+                // Reconstruir el camino
+                List<Point> camino = new ArrayList<>();
+                while (actual != null) {
+                    camino.add(new Point(actual.x, actual.y));
+                    actual = actual.padre;
+                }
+                Collections.reverse(camino);
+                return camino;
             }
 
-            cerrados[actual.x][actual.y] = true;
+            cerrados.add(puntoActual);
 
             for (int[] dir : direcciones) {
                 int nx = actual.x + dir[0];
                 int ny = actual.y + dir[1];
+                Point vecino = new Point(nx, ny);
 
                 // Validaciones más estrictas
                 if (nx < 0 || nx >= FILAS || ny < 0 || ny >= COLS)
                     continue;
 
                 // Solo permitir moverse a celdas transitables que no estén cerradas
-                if (!esTransitable(nx, ny) || cerrados[nx][ny])
+                if (!esTransitable(nx, ny) || cerrados.contains(vecino))
                     continue;
 
                 double costoTentativo = actual.g + 1;
-                if (costoTentativo < gScore[nx][ny]) {
-                    gScore[nx][ny] = costoTentativo;
+
+                // Verificar si este camino es mejor que el anterior
+                Nodo vecinoNodo = mejorNodo.get(vecino);
+                boolean mejorCamino = vecinoNodo == null || costoTentativo < vecinoNodo.g;
+
+                if (mejorCamino) {
                     double h = heuristica(nx, ny, fin.x, fin.y);
-                    Nodo vecino = new Nodo(nx, ny, costoTentativo, h, actual);
-                    openSet.add(vecino);
+                    Nodo nuevoNodo = new Nodo(nx, ny, costoTentativo, h, actual);
+
+                    // Actualizar o agregar el nodo
+                    if (vecinoNodo == null) {
+                        openSet.add(nuevoNodo);
+                    } else {
+                        openSet.remove(vecinoNodo);
+                        openSet.add(nuevoNodo);
+                    }
+
+                    mejorNodo.put(vecino, nuevoNodo);
                 }
             }
         }
 
-        if (destinoNodo == null) {
-            return null; // no se encontró camino
+        return null; // No se encontró camino
+    }
+
+    // Método para validar si una celda es transitable (no es obstáculo)
+    private boolean esTransitable(int x, int y) {
+        // Verificar primero que las coordenadas estén dentro de los límites del grid
+        if (x < 0 || x >= FILAS || y < 0 || y >= COLS) {
+            return false;
         }
 
-        // Reconstruir el camino retrocediendo desde el destino.
-        List<Point> camino = new ArrayList<>();
-        Nodo current = destinoNodo;
-        while (current != null) {
-            camino.add(new Point(current.x, current.y));
-            current = current.padre;
-        }
-        Collections.reverse(camino);
-        return camino;
+        // Considerar como intransitable si es un obstáculo explícito
+        return !grid[x][y].equals("■");
+    }
+
+    // Método auxiliar de heurística Manhattan para A*
+    private double heuristica(int x, int y, int xf, int yf) {
+        return Math.abs(x - xf) + Math.abs(y - yf);
     }
 
     /**
@@ -309,21 +331,6 @@ public class Mapa {
         return gridConRecorrido;
     }
 
-    // Método para validar si una celda es transitable (no es obstáculo).
-    private boolean esTransitable(int x, int y) {
-        // Verificar primero que las coordenadas estén dentro de los límites del grid
-        if (x < 0 || x >= FILAS || y < 0 || y >= COLS) {
-            return false;
-        }
-
-        // Considerar como intransitable si es un obstáculo explícito
-        return !grid[x][y].equals("■");
-    }
-
-    // Heurística Manhattan para A*
-    private double heuristica(int x, int y, int xf, int yf) {
-        return Math.abs(x - xf) + Math.abs(y - yf);
-    }
 
     // Clase interna para representar un nodo en la búsqueda A*
     private class Nodo {

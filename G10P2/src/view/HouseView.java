@@ -108,14 +108,15 @@ public class HouseView extends JPanel {
         // Dibuja la ruta como una línea magenta conectando los puntos (si se ha establecido)
         if (path != null && path.size() > 1) {
             g2.setColor(Color.MAGENTA);
+
             for (int i = 0; i < path.size() - 1; i++) {
                 Point p1 = path.get(i);
                 Point p2 = path.get(i + 1);
                 // Convertir coordenadas de celda a coordenadas de centro de celda (pixel)
-                int x1 = p1.x * CELL_SIZE + CELL_SIZE / 2;
-                int y1 = p1.y * CELL_SIZE + CELL_SIZE / 2;
-                int x2 = p2.x * CELL_SIZE + CELL_SIZE / 2;
-                int y2 = p2.y * CELL_SIZE + CELL_SIZE / 2;
+                int x1 = p1.y * CELL_SIZE + CELL_SIZE / 2; // Nota: intercambio x e y
+                int y1 = p1.x * CELL_SIZE + CELL_SIZE / 2; // Por la forma en que se guardan los puntos
+                int x2 = p2.y * CELL_SIZE + CELL_SIZE / 2;
+                int y2 = p2.x * CELL_SIZE + CELL_SIZE / 2;
                 drawArrow(g2, x1, y1, x2, y2);
             }
         }
