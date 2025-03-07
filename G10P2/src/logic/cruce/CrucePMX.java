@@ -68,7 +68,10 @@ public class CrucePMX extends Cruce<Integer> {
         for (int i = 0; i < length; i++) {
             if (child[i] == null) {
                 // buscar pos en la cadena del otro padre
-                int pos = indexOf(p2, p1[i]);
+                int pos = i;
+                do {
+                    pos = indexOf(p2, p1[pos]);
+                } while (metidos.contains(p1[pos]));
                 // cambiarlo por el de mi misma pos
                 child[i] = p1[pos];
             }
