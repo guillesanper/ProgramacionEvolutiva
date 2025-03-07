@@ -1,6 +1,8 @@
 package logic.cruce;
 
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 public class CrucePMX extends Cruce<Integer> {
 
@@ -15,9 +17,22 @@ public class CrucePMX extends Cruce<Integer> {
             throw new IllegalArgumentException("Los padres deben tener la misma longitud.");
         }
         int length = parent1.length;
+
+        Random rand = new Random();
+
+        // Elegir dos puntos de corte aleatorios
+        int cut1 = rand.nextInt(length);
+        int cut2 = rand.nextInt(length);
+
+
+        if (cut1 > cut2) {
+            int temp = cut1;
+            cut1 = cut2;
+            cut2 = temp;
+        }
         // Se generan dos hijos aplicando PMX en sentidos opuestos
-        Integer[] child1 = pmxCrossover(parent1, parent2);
-        Integer[] child2 = pmxCrossover(parent2, parent1);
+        Integer[] child1 = pmxCrossover(parent1, parent2, cut1, cut2);
+        Integer[] child2 = pmxCrossover(parent2, parent1, cut1, cut2);
 
         // Se copian los hijos en los arreglos de los padres (operación in-place)
         System.arraycopy(child1, 0, parent1, 0, length);
@@ -28,46 +43,34 @@ public class CrucePMX extends Cruce<Integer> {
      * Aplica el operador PMX para generar un hijo a partir de dos padres.
      * p1 define el segmento a copiar y p2 se utiliza para completar el resto.
      */
-    private Integer[] pmxCrossover(Integer[] p1, Integer[] p2) {
+    private Integer[] pmxCrossover(Integer[] p1, Integer[] p2, int cut1, int cut2) {
+        Set<Integer> metidos = new HashSet<>();
+
         int length = p1.length;
         // Creamos un arreglo hijo inicialmente vacío (llenado de null)
-        @SuppressWarnings("unchecked")
         Integer[] child =  new Integer[length];
-        for (int i = 0; i < length; i++) {
-            child[i] = null;
-        }
-        Random rand = new Random();
-        // Elegir dos puntos de corte aleatorios
-        int cut1 = rand.nextInt(length);
-        int cut2 = rand.nextInt(length);
-        if (cut1 > cut2) {
-            int temp = cut1;
-            cut1 = cut2;
-            cut2 = temp;
-        }
         // Copiar el segmento de p1 en el hijo
         for (int i = cut1; i <= cut2; i++) {
-            child[i] = p1[i];
+            child[i] = p2[i];
+            metidos.add(p2[i]);
         }
         // Para cada posición del segmento en p2, si el gen no está ya en el hijo, se reubica
-        for (int i = cut1; i <= cut2; i++) {
-            Integer gene = p2[i];
-            if (!contains(child, gene)) {
-                int pos = i;
-                // Se busca la posición en la que colocar el gen conflictivo
-                while (child[pos] != null) {
-                    // Se obtiene el gen de p1 en esta posición (que ya está en el hijo)
-                    Integer mappedGene = p1[pos];
-                    // Se busca la posición en p2 en la que aparece dicho gen
-                    pos = indexOf(p2, mappedGene);
-                }
-                child[pos] = gene;
+        for (int i = 0; i < length; i++) {
+            if (i >= cut1 && i <= cut2) continue;
+            int gene = p1[i];
+            if (!metidos.contains(gene)) {
+                child[i] = gene;
+                metidos.add(gene);
             }
         }
-        // Rellenar las posiciones vacías con los genes de p2
+
+        // Rellenar las posiciones vacías con el
         for (int i = 0; i < length; i++) {
             if (child[i] == null) {
-                child[i] = p2[i];
+                // buscar pos en la cadena del otro padre
+                int pos = indexOf(p2, p1[i]);
+                // cambiarlo por el de mi misma pos
+                child[i] = p1[pos];
             }
         }
         return child;
@@ -84,17 +87,5 @@ public class CrucePMX extends Cruce<Integer> {
             }
         }
         return -1;
-    }
-
-    /**
-     * Retorna true si el arreglo contiene el elemento (comparación con equals), ignorando null.
-     */
-    private boolean contains(Integer[] array, Integer element) {
-        for (Integer item : array) {
-            if (item != null && item.equals(element)) {
-                return true;
-            }
-        }
-        return false;
     }
 }
