@@ -16,6 +16,8 @@ public class FitnessFunctionFactory {
         switch (index){
             case 0:
                 return new FitnessPorLongitud(map);
+            case 1:
+                return new FitnessPorProximidadObstaculos(map);
             default:
                 return new FitnessPorLongitud(map);
         }

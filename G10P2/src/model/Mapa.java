@@ -9,6 +9,8 @@ public class Mapa {
     private String[][] grid;
     private Point base;
     private Map<Integer, Point> habitaciones;
+    private Map<String, Double> routeCache = new HashMap<>();
+
 
     public Mapa() {
         grid = new String[FILAS][COLS];
@@ -147,51 +149,46 @@ public class Mapa {
      * Implementa el algoritmo A* para calcular la ruta (distancia) entre dos puntos.
      * Retorna la distancia mínima en pasos o -1 si no existe un camino.
      */
+
     public double calcularRuta(Point inicio, Point fin) {
-        // Validación: si el punto de inicio o fin no es transitable, retorna -1.
+        String key = inicio.x + "," + inicio.y + "-" + fin.x + "," + fin.y;
+        if (routeCache.containsKey(key)) {
+            return routeCache.get(key);
+        }
         if (!esTransitable(inicio.x, inicio.y) || !esTransitable(fin.x, fin.y)) {
-            return -1;
+            routeCache.put(key, Double.POSITIVE_INFINITY);
+            return Double.POSITIVE_INFINITY;
         }
 
-        // Inicialización de estructuras para A*
         PriorityQueue<Nodo> openSet = new PriorityQueue<>(Comparator.comparingDouble(a -> a.f));
         boolean[][] cerrados = new boolean[FILAS][COLS];
         double[][] gScore = new double[FILAS][COLS];
         for (int i = 0; i < FILAS; i++) {
             Arrays.fill(gScore[i], Double.POSITIVE_INFINITY);
         }
-
         Nodo inicioNodo = new Nodo(inicio.x, inicio.y, 0, heuristica(inicio.x, inicio.y, fin.x, fin.y), null);
         openSet.add(inicioNodo);
         gScore[inicio.x][inicio.y] = 0;
 
-        // Direcciones: arriba, abajo, izquierda, derecha
         int[][] direcciones = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } };
 
         while (!openSet.isEmpty()) {
             Nodo actual = openSet.poll();
-
-            // Si se llegó al destino, retorna el costo acumulado
             if (actual.x == fin.x && actual.y == fin.y) {
+                routeCache.put(key, actual.g);
                 return actual.g;
             }
-
             cerrados[actual.x][actual.y] = true;
-
-            // Explorar vecinos
             for (int[] dir : direcciones) {
                 int nx = actual.x + dir[0];
                 int ny = actual.y + dir[1];
-
                 if (nx < 0 || nx >= FILAS || ny < 0 || ny >= COLS) {
                     continue;
                 }
                 if (!esTransitable(nx, ny) || cerrados[nx][ny]) {
                     continue;
                 }
-
-                double costoTentativo = actual.g + 1; // Costo de moverse a una celda adyacente
-
+                double costoTentativo = actual.g + 1;
                 if (costoTentativo < gScore[nx][ny]) {
                     gScore[nx][ny] = costoTentativo;
                     double h = heuristica(nx, ny, fin.x, fin.y);
@@ -200,9 +197,8 @@ public class Mapa {
                 }
             }
         }
-
-        // Si no se encontró camino, retorna -1.
-        return -1;
+        routeCache.put(key, Double.POSITIVE_INFINITY);
+        return Double.POSITIVE_INFINITY;
     }
 
     public List<Point> calcularRutaCompleta(Point inicio, Point fin) {

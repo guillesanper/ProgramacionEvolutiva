@@ -205,48 +205,46 @@ public class AlgoritmoGenetico<T> {
     }
 
 
+    // File: src/logic/AlgoritmoGenetico.java
+// Within the evaluate_population() method, you can use parallel streams:
     private void evaluate_population() {
         totalFitness = 0;
-
-        double best_gen = !isMin() ? Double.MIN_VALUE : Double.MAX_VALUE;
-        double worst_gen = population[1].fitness;
+        double bestGen = isMin() ? Double.MAX_VALUE : Double.MIN_VALUE;
         Individuo<T> bestGenInd = population[0];
 
-        double fit;
+        // Evaluate using parallel streams to speed up fitness computations
+        Arrays.stream(population).parallel().forEach(ind -> {
+            double fit = ind.getFitness(); // This will call the fitness function
+            ind.fitness = fit;
+        });
+
+        // Then, iterate over population for updating totals and elitism
         for (int i = 0; i < populationSize; i++) {
-            fit = population[i].getFitness();
-            population[i].fitness = fit;
+            double fit = population[i].fitness;
             totalFitness += fit;
 
-
-            // Agregar a la cola de elitismo si es necesario
             if (elitQ.size() < eliteSize)
                 elitQ.add(new NodoIndividuo(fit, population[i]));
             else if (eliteSize != 0) {
                 compareAndReplaceElite(population[i]);
             }
 
-            //Actualizamos mejor o peor de la generacion si es necesario
-            if (compare(fit, best_gen)) {
-                best_gen = fit;
-                bestGenInd = (Individuo<T>) IndividuoFactory.createIndividuo(funcIndex, errorValue, dimension,map);
-                bestGenInd.chromosome = Arrays.copyOf(population[i].chromosome, population[i].chromosome.length);
+            if (compare(fit, bestGen)) {
+                bestGen = fit;
+                bestGenInd = population[i];
             }
-            worst_gen = compare(fit, worst_gen) ? worst_gen : fit;
-
         }
 
-        //Actualizamos el mejor global si es necesario
-        if (compare(best_gen, totalBest)) {
-            totalBest = best_gen;
-            best = bestGenInd;
+
+        if(compare(bestGen,totalBest)){
+            best.chromosome = bestGenInd.chromosome.clone();
+            best.fitness = bestGenInd.fitness;
+            totalBest = bestGen;
         }
 
-        // Actualizamos las variables para la grafica
-        generationProgress[0][currentGeneration] = totalBest;   // Mejor total
-        generationProgress[1][currentGeneration] = best_gen;    // Mejor de la generacion
-        generationProgress[2][currentGeneration++] = totalFitness / populationSize; //Media
-
+        generationProgress[0][currentGeneration] = totalBest;
+        generationProgress[1][currentGeneration] = bestGen;
+        generationProgress[2][currentGeneration++] = totalFitness / populationSize;
     }
 
     /**
@@ -363,7 +361,7 @@ public class AlgoritmoGenetico<T> {
     }
 
     private boolean isMin() {
-        return this.funcIndex == 0;
+        return true;
     }
 
     private boolean isFunc5() {
