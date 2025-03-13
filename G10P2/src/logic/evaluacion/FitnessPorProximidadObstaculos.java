@@ -1,4 +1,3 @@
-
 package logic.evaluacion;
 
 import logic.evaluacion.FitnessFunction;
@@ -9,6 +8,8 @@ import java.util.List;
 public class FitnessPorProximidadObstaculos implements FitnessFunction {
 
     private Mapa mapa;
+    // Constant weight to penalize starting from a room other than the closest.
+    private static final double PENALTY_WEIGHT = 10.0;
 
     public FitnessPorProximidadObstaculos(Mapa map) {
         this.mapa = map;
@@ -20,8 +21,24 @@ public class FitnessPorProximidadObstaculos implements FitnessFunction {
         double segmentDistance;
         double proximityPenalty = 0.0;
 
+        // Calculate extra penalty if the first room is not the one closest to the base.
+        double bestBaseDistance = Double.POSITIVE_INFINITY;
+        int bestRoomId = -1;
+        // There are 20 fixed rooms (IDs 1 to 20)
+        for (int i = 1; i <= 20; i++) {
+            double d = mapa.calcularRuta(mapa.getBase(), mapa.getHabitacion(i));
+            if (d < bestBaseDistance) {
+                bestBaseDistance = d;
+                bestRoomId = i;
+            }
+        }
+        // Insert extra penalty proportional to how much farther the chosen first room is.
         segmentDistance = mapa.calcularRuta(mapa.getBase(), mapa.getHabitacion(chromosome[0]));
         if (segmentDistance == Double.POSITIVE_INFINITY) return Double.POSITIVE_INFINITY;
+        if (chromosome[0] != bestRoomId) {
+            double extraPenalty = segmentDistance - bestBaseDistance;
+            total += extraPenalty * PENALTY_WEIGHT;
+        }
         total += segmentDistance;
         proximityPenalty += calculateProximityPenalty(mapa.getBase(), mapa.getHabitacion(chromosome[0]));
 

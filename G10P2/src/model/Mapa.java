@@ -272,7 +272,7 @@ public class Mapa {
         return null; // No se encontró camino
     }
 
-    // Método para validar si una celda es transitable (no es obstáculo)
+    // Metodo para validar si una celda es transitable (no es obstáculo)
     private boolean esTransitable(int x, int y) {
         // Verificar primero que las coordenadas estén dentro de los límites del grid
         if (x < 0 || x >= FILAS || y < 0 || y >= COLS) {
@@ -283,7 +283,7 @@ public class Mapa {
         return !grid[x][y].equals("■");
     }
 
-    // Método auxiliar de heurística Manhattan para A*
+    // Metodo auxiliar de heurística Manhattan para A*
     private double heuristica(int x, int y, int xf, int yf) {
         return Math.abs(x - xf) + Math.abs(y - yf);
     }

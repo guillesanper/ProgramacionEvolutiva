@@ -132,48 +132,34 @@ public class AlgoritmoGenetico<T> {
         mutacion.mut_population(population,elitQ);
     }
 
-    private void cross_population(int[] selec) {
-        // Crear copia de la población antes del cruce
-        Individuo<T>[] selection = copyPopulation(selec);
-        // De los seleccionados, los indices de los que se reproduciran
-        int[] chosen_for_cross = new int[populationSize];
-        int chosen_size = 0;
+    private void cross_population(int[] seleccionados) {
+
+        this.population = this.copyPopulation(seleccionados);
+        int numCruce = 0;
+        int[] to_cross = new int[populationSize];
 
         for (int i = 0; i < populationSize; i++) {
-            if (Math.random() < probCruce) {
-                chosen_for_cross[chosen_size++] = selec[i];
+            if (this.probCruce > Math.random()) {
+                to_cross[numCruce++] = i;
             }
         }
 
-        if (chosen_size % 2 == 1) {
-            chosen_size--;
+        if (numCruce % 2 != 0) {
+            numCruce--;
         }
 
-        // Aplicar cruce en la copia para evitar sobrescribir individuos seleccionados múltiples veces
-        for (int i = 0; i < chosen_size - 1; i += 2) {
-            if (!isElite(chosen_for_cross[i]) && !isElite(chosen_for_cross[i + 1])) {
-                reproduce(chosen_for_cross[i], chosen_for_cross[i + 1], selection);
-            }
+        for (int i = 0; i < numCruce; i += 2) {
+            reproduce(to_cross[i],to_cross[i+1]);
         }
-
-        for (int i = 0; i < chosen_size; i++) {
-            if (!isElite(chosen_for_cross[i])) {
-                this.population[chosen_for_cross[i]].chromosome = Arrays.copyOf(selection[chosen_for_cross[i]].chromosome, selection[chosen_for_cross[i]].chromosome.length);
-                this.population[chosen_for_cross[i]].fitness = this.population[chosen_for_cross[i]].getFitness();
-                crossed++;
-            }
-        }
-
     }
 
-    private void reproduce(int pos1, int pos2, Individuo<T>[] populationCopy) {
+    private void reproduce(int pos1, int pos2) {
         T[] c1 = Arrays.copyOf(population[pos1].chromosome, population[pos1].chromosome.length);
         T[] c2 = Arrays.copyOf(population[pos2].chromosome, population[pos2].chromosome.length);
         this.cross.cross(c1, c2);
-        populationCopy[pos1].chromosome = c1;
-        populationCopy[pos2].chromosome = c2;
+        population[pos1].chromosome = c1.clone();
+        population[pos2].chromosome = c2.clone();
     }
-
 
 
     private boolean isElite(int index) {

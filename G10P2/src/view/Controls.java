@@ -10,6 +10,7 @@ import utils.*;
 import org.math.plot.*;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.*;
 
 public class Controls extends JPanel {
@@ -34,6 +35,7 @@ public class Controls extends JPanel {
     private Valores valores;
     private HistoryGraphic historyGraphic;
     private JTextArea textArea;
+    private JTextArea bestFitnessArea;
     private HouseView houseView; // Declarar la instancia a nivel de clase
 
 
@@ -291,7 +293,9 @@ public class Controls extends JPanel {
         plot2D.setFixedBounds(1, t.interval.get_first(), t.interval.get_second()); // Fix Y-axis bounds
 
 
+        bestFitnessArea.setText(String.valueOf(t.best.getFitness()));
         textArea.setText(printIndividuo(t.best));
+        textArea.setCaretPosition(0);
 
         if(t.save)
             this.historyGraphic.saveState(new HistoryState(t.vals, t.interval, t.best,t.crossed,t.muted));
@@ -326,13 +330,23 @@ public class Controls extends JPanel {
         gbc.gridx = 0;
         gbc.gridy = 0;
 
-        gbc.gridy++;
         textArea = new JTextArea(20, 20);
         textArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(textArea);
         scrollPane.setPreferredSize(new Dimension(280, 300));
+        gbc.gridy++;
 
-        historyPanel.add(new JLabel("Valor optimo:"));
+        bestFitnessArea = new JTextArea(1, 20);
+        bestFitnessArea.setEditable(false);
+        // Crear un borde negro y aplicarlo al JTextArea
+        Border blackBorder = BorderFactory.createLineBorder(Color.GRAY);
+        bestFitnessArea.setBorder(blackBorder);
+        historyPanel.add(new JLabel("Mejor fitness:"), gbc);
+        gbc.gridy++;
+        historyPanel.add(bestFitnessArea, gbc);
+        gbc.gridy++;
+
+        historyPanel.add(new JLabel("Orden de habitaciones:"), gbc);
         gbc.gridy++;
         historyPanel.add(scrollPane, gbc);
 
@@ -340,15 +354,12 @@ public class Controls extends JPanel {
     }
 
     private String printIndividuo(Individuo individuo) {
-        String texto_salida = "\nFitness: " + individuo.getFitness() + "\n";
-        int cont = 1;
-        texto_salida += "Orden de abitaciones : "+'\n';
+        StringBuilder texto_salida = new StringBuilder();
         for (Integer alelo : (Integer[])individuo.chromosome) {
-             texto_salida+= alelo + "\n";
+            texto_salida.append(alelo).append("\n");
         }
-        return texto_salida;
+        return texto_salida.toString();
     }
-
 
     protected ImageIcon load_image(String path, int width, int height) {
         return new ImageIcon(Toolkit.getDefaultToolkit().createImage(path).getScaledInstance(width, height, Image.SCALE_SMOOTH));

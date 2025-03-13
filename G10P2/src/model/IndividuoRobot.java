@@ -11,7 +11,7 @@ public class IndividuoRobot extends Individuo<Integer> implements Comparable<Ind
 
     FitnessFunction fitnessFunction;
 
-    public IndividuoRobot(FitnessFunction fn,Mapa map) {
+    public IndividuoRobot(FitnessFunction fn) {
         fitnessFunction = fn;
         this.chromosome = new Integer[ROOMS];
         // Inicializar el cromosoma con la permutación de 1 a 20
