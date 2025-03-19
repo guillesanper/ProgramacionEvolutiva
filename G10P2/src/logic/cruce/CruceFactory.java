@@ -11,6 +11,8 @@ public class CruceFactory {
                 return new CruceCX(chromosomeSize);
             case "OXPP":
                 return new CruceOXPP(chromosomeSize);
+            case "CO":
+                return new CruceCO(chromosomeSize);
             default:
                 return null;
         }
