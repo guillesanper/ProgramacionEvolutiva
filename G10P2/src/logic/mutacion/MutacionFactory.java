@@ -8,6 +8,9 @@ public class MutacionFactory {
 
     static {
         mutations.put(0,new MutacionInsercion());
+        mutations.put(1,new MutacionIntercambio());
+        mutations.put(2,new MutacionInversion());
+        mutations.put(3,new MutacionHeuristica());
     }
 
     public static Mutate getMutation(int index){
