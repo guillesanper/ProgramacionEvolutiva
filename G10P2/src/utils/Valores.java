@@ -1,4 +1,3 @@
-
 package utils;
 
 public class Valores {
@@ -14,11 +13,22 @@ public class Valores {
     public int elitismo;
     public int dimension;
     public String scaling;
+    public boolean invMejorado; // Nueva propiedad para INV mejorado
 
 
     public Valores(int populationSize, int generations, String selectionType,
                    String cross_type, double prob_cruce, int mut_idx, double prob_mut,
-                   double precision, int funcion_idx, int elitismo, int dimension, String scaling ) {
+                   double precision, int funcion_idx, int elitismo, int dimension, String scaling) {
+
+        this(populationSize, generations, selectionType, cross_type, prob_cruce, mut_idx,
+                prob_mut, precision, funcion_idx, elitismo, dimension, scaling, false);
+    }
+
+    // Constructor sobrecargado que incluye el parámetro invMejorado
+    public Valores(int populationSize, int generations, String selectionType,
+                   String cross_type, double prob_cruce, int mut_idx, double prob_mut,
+                   double precision, int funcion_idx, int elitismo, int dimension, String scaling,
+                   boolean invMejorado) {
 
         this.populationSize = populationSize;
         this.generations = generations;
@@ -32,5 +42,6 @@ public class Valores {
         this.elitismo = elitismo;
         this.dimension = dimension;
         this.scaling = scaling;
+        this.invMejorado = invMejorado;
     }
 }

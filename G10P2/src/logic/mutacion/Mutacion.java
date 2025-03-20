@@ -22,10 +22,10 @@ public class Mutacion {
         Random rand = new Random();
         for (int i = 0; i < population_size; i++) {
             if (!isElite(i, eliteQ, population)) {
-                if (rand.nextDouble() < prob) {
-                    mutate_method.mutate((Integer[]) population[i].chromosome);
+               if (rand.nextDouble() < prob) {
+                    population[i].chromosome = mutate_method.mutate((Integer[]) population[i].chromosome);
                     mutated++;
-                }
+               }
             }
         }
         return mutated;

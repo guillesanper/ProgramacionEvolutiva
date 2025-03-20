@@ -12,6 +12,10 @@ public class FitnessFunctionFactory {
 
     private static Mapa map;
 
+    public static Mapa getMap() {
+        return map;
+    }
+
     public FitnessFunction getFunction(Integer index){
         switch (index){
             case 0:

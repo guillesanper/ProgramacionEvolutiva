@@ -1,6 +1,3 @@
-/**
- *
- */
 package view;
 
 import logic.AlgoritmoGenetico;
@@ -31,6 +28,7 @@ public class Controls extends JPanel {
     private JComboBox<String> mutacion_CBox;
     private JComboBox<String> escalado_CBox;
     private JSpinner dimensionSpinner;
+    private JCheckBox invMejoradoCheckbox; // Nuevo checkbox para INV mejorado
     private Plot2DPanel plot2D;
     private Valores valores;
     private HistoryGraphic historyGraphic;
@@ -52,6 +50,7 @@ public class Controls extends JPanel {
         this.dimensionSpinner = new JSpinner();
         this.historyGraphic = new HistoryGraphic();
         this.houseView = new HouseView();
+        this.invMejoradoCheckbox = new JCheckBox("INV Mejorado"); // Inicialización del checkbox
 
         init_GUI();
     }
@@ -79,7 +78,6 @@ public class Controls extends JPanel {
     }
 
 
-
     private JPanel crea_panel_izquiedo() {
         JPanel leftPanel = new JPanel(new GridBagLayout());
         leftPanel.setPreferredSize(new Dimension(335, 600));
@@ -99,17 +97,16 @@ public class Controls extends JPanel {
                 "Estocastico Universal",
                 "Truncamiento",
                 "Ranking",
-                "Restos",
-                "Invencion"
+                "Restos"
         };
-        String[] cruce = {"PMX","OX","OXPP","CX","CO","ERX"};
+        String[] cruce = {"PMX", "OX", "OXPP", "CX", "CO", "ERX", "INV"};
         String[] mutacion = {"Insercion",
                 "Intercambio",
                 "Inversion",
                 "Heuristica",
                 "Invencion"
         };
-        String[] escalados={"Ninguno","Lineal","Sigma","Boltzmann"};
+        String[] escalados = {"Ninguno", "Lineal", "Sigma", "Boltzmann"};
 
         funcion_CBox = new JComboBox<>(funciones);
 
@@ -127,6 +124,18 @@ public class Controls extends JPanel {
                 int selectedIndex = funcion_CBox.getSelectedIndex();
                 dimensionSpinner.setEnabled(selectedIndex == 3 || selectedIndex == 4);
                 if (selectedIndex != 3 && selectedIndex != 4) dimensionSpinner.setValue(2);
+            }
+        });
+
+        // Configurar el checkbox para que solo sea visible cuando se selecciona INV
+        invMejoradoCheckbox.setVisible(false);
+
+        // Añadir ItemListener al combobox de cruce para mostrar/ocultar el checkbox
+        cruce_CBox.addItemListener(e -> {
+            if (e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+                int selectedIndex = cruce_CBox.getSelectedIndex();
+                // El índice 6 corresponde a "INV" en el array de cruce
+                invMejoradoCheckbox.setVisible(selectedIndex == 6);
             }
         });
 
@@ -149,7 +158,7 @@ public class Controls extends JPanel {
             if (historyGraphic.undo()) {
                 HistoryState state = historyGraphic.getState();
                 textArea.setText("Mejor Individuo: " + printIndividuo(state.getBest()) + "\n");
-                Transfer t = new Transfer(state.getVals(), state.getInterval(), state.getBest(),false,state.getCrossed(),state.getMuted());
+                Transfer t = new Transfer(state.getVals(), state.getInterval(), state.getBest(), false, state.getCrossed(), state.getMuted());
                 update_graph(t);
                 plot2D.revalidate();
                 plot2D.repaint();
@@ -159,8 +168,8 @@ public class Controls extends JPanel {
         redoButton.addActionListener(e -> {
             if (historyGraphic.redo()) {
                 HistoryState state = historyGraphic.getState();
-                textArea.setText("Mejor Individuo: " +printIndividuo(state.getBest()) + "\n");
-                Transfer t = new Transfer(state.getVals(), state.getInterval(), state.getBest(),false,state.getCrossed(),state.getMuted());
+                textArea.setText("Mejor Individuo: " + printIndividuo(state.getBest()) + "\n");
+                Transfer t = new Transfer(state.getVals(), state.getInterval(), state.getBest(), false, state.getCrossed(), state.getMuted());
                 update_graph(t);
             }
         });
@@ -187,17 +196,13 @@ public class Controls extends JPanel {
         gbc.gridy++;
         leftPanel.add(new JLabel("  Prob. Mutacion:"), gbc);
         gbc.gridy++;
-        leftPanel.add(new JLabel("  Precision:"), gbc);
-        gbc.gridy++;
         leftPanel.add(new JLabel("  Funcion:"), gbc);
         gbc.gridy++;
-        leftPanel.add(new JLabel("  Escalado"),gbc);
-        gbc.gridy++;
-        leftPanel.add(new JLabel("  d:"), gbc);
+        leftPanel.add(new JLabel("  Escalado"), gbc);
         gbc.gridy++;
         leftPanel.add(new JLabel("  Elitismo:"), gbc);
         gbc.anchor = GridBagConstraints.EAST;
-        gbc.gridy++;
+        gbc.gridy += 2;
 
         leftPanel.add(new JLabel("Historial de ejecuciones:  "), gbc);
         gbc.anchor = GridBagConstraints.WEST;
@@ -223,15 +228,15 @@ public class Controls extends JPanel {
         gbc.gridy++;
         leftPanel.add(prob_mut, gbc);
         gbc.gridy++;
-        leftPanel.add(precision, gbc);
-        gbc.gridy++;
         leftPanel.add(funcion_CBox, gbc);
         gbc.gridy++;
         leftPanel.add(escalado_CBox, gbc);
         gbc.gridy++;
-        leftPanel.add(dimensionSpinner, gbc);
-        gbc.gridy++;
         leftPanel.add(elitismo, gbc);
+
+        // Añadir el checkbox INV mejorado después del elitismo
+        gbc.gridy++;
+        leftPanel.add(invMejoradoCheckbox, gbc);
 
         JPanel runAndHistoryPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbcRun = new GridBagConstraints();
@@ -297,8 +302,8 @@ public class Controls extends JPanel {
         textArea.setText(printIndividuo(t.best));
         textArea.setCaretPosition(0);
 
-        if(t.save)
-            this.historyGraphic.saveState(new HistoryState(t.vals, t.interval, t.best,t.crossed,t.muted));
+        if (t.save)
+            this.historyGraphic.saveState(new HistoryState(t.vals, t.interval, t.best, t.crossed, t.muted));
 
         Mapa map = new Mapa();
 
@@ -355,7 +360,7 @@ public class Controls extends JPanel {
 
     private String printIndividuo(Individuo individuo) {
         StringBuilder texto_salida = new StringBuilder();
-        for (Integer alelo : (Integer[])individuo.chromosome) {
+        for (Integer alelo : (Integer[]) individuo.chromosome) {
             texto_salida.append(alelo).append("\n");
         }
         return texto_salida.toString();
@@ -377,11 +382,11 @@ public class Controls extends JPanel {
                 funcion_CBox.getSelectedIndex(),
                 Integer.parseInt(elitismo.getText()),
                 (int) dimensionSpinner.getValue(),
-                (String) escalado_CBox.getSelectedItem());
+                (String) escalado_CBox.getSelectedItem(),
+                invMejoradoCheckbox.isSelected()); // Añadimos el estado del checkbox
     }
 
     public Valores get_valores() {
         return valores;
     }
-
 }

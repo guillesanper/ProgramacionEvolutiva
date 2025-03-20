@@ -12,7 +12,7 @@ import java.util.Random;
 public class MutacionHeuristica implements Mutate {
 
     @Override
-    public void mutate(Integer[] chromosome) {
+    public Integer[] mutate(Integer[] chromosome) {
         FitnessFunctionFactory factory = new FitnessFunctionFactory();
         FitnessFunction fn = factory.getFunction(0);
         List<Integer> allelesToChange = new ArrayList<>();
@@ -26,7 +26,7 @@ public class MutacionHeuristica implements Mutate {
         }
         // Si no se selecciona ningún alelo, no se realiza mutación
         if(allelesToChange.isEmpty()){
-            return;
+            return chromosome;
         }
 
         List<Integer[]> permutations = getAllPermutation(chromosome, allelesToChange);
@@ -46,10 +46,7 @@ public class MutacionHeuristica implements Mutate {
         int selectedIndex = new Random().nextInt(topCount);
         Integer[] selectedPermutation = candidateList.get(selectedIndex).permutation;
 
-        // Actualizar el cromosoma original con la permutación seleccionada
-        for (int i = 0; i < chromosome.length; i++){
-            chromosome[i] = selectedPermutation[i];
-        }
+        return selectedPermutation;
     }
 
     /**

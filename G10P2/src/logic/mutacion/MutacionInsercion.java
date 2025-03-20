@@ -4,14 +4,16 @@ import java.util.Random;
 
 public class MutacionInsercion implements Mutate {
     @Override
-    public void mutate(Integer[] chromosome) {
+    public Integer[] mutate(Integer[] originalChromosome) {
         Random rand = new Random();
+        Integer[] chromosome = originalChromosome.clone();
+
         int length = chromosome.length;
         // Seleccionar una posición aleatoria en el cromosoma
         int pos = rand.nextInt(length);
         // Si pos es 0, no se puede mover a una posición anterior, por lo que salimos
         if (pos == 0) {
-            return;
+            pos++;
         }
         // Seleccionar una posición aleatoria menor que pos (en el rango [0, pos))
         int target = rand.nextInt(pos);
@@ -23,6 +25,8 @@ public class MutacionInsercion implements Mutate {
         }
         // Insertar el valor en la posición target
         chromosome[target] = valor;
+
+        return chromosome;
     }
 }
 

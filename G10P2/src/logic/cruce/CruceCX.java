@@ -1,5 +1,7 @@
 package logic.cruce;
 
+import logic.mutacion.Mutate;
+
 public class CruceCX extends Cruce<Integer> {
 
     public CruceCX(int tamCromosoma) {
@@ -19,44 +21,23 @@ public class CruceCX extends Cruce<Integer> {
         // Realizamos el cruce de ciclos
         Integer[] hijo1 = new Integer[tamCromosoma];
         Integer[] hijo2 = new Integer[tamCromosoma];
+        int posicionInicial = 0;
+        int posicionActual = 0;
+        do {
 
-        // Determinamos los ciclos
-        boolean[] visitado = new boolean[tamCromosoma];
-        int numVisitados = 0;
+            // El primer hijo toma los valores del primer padre en el ciclo
+            hijo1[posicionActual] = p1Copy[posicionActual];
+            // El segundo hijo toma los valores del segundo padre en el ciclo
+            hijo2[posicionActual] = p2Copy[posicionActual];
 
-        // Mientras no hayamos visitado todas las posiciones
-        while (numVisitados < tamCromosoma) {
-            // Encontramos la primera posición no visitada
-            int posicionInicial = 0;
-            while (posicionInicial < tamCromosoma && visitado[posicionInicial]) {
-                posicionInicial++;
-            }
+            // Buscamos el valor del segundo padre en la posición actual
+            int valorABuscar = p2Copy[posicionActual];
 
-            // Si hemos visitado todas las posiciones, salimos
-            if (posicionInicial >= tamCromosoma) {
-                break;
-            }
+            // Buscamos la posición de ese valor en el primer padre
+            posicionActual = buscarIndice(p1Copy, valorABuscar);
 
-            // Comenzamos un nuevo ciclo
-            int posicionActual = posicionInicial;
-            do {
-                // Marcamos la posición como visitada
-                visitado[posicionActual] = true;
-                numVisitados++;
+        } while (posicionActual != posicionInicial);
 
-                // El primer hijo toma los valores del primer padre en el ciclo
-                hijo1[posicionActual] = p1Copy[posicionActual];
-                // El segundo hijo toma los valores del segundo padre en el ciclo
-                hijo2[posicionActual] = p2Copy[posicionActual];
-
-                // Buscamos el valor del segundo padre en la posición actual
-                int valorABuscar = p2Copy[posicionActual];
-
-                // Buscamos la posición de ese valor en el primer padre
-                posicionActual = buscarIndice(p1Copy, valorABuscar);
-
-            } while (posicionActual != posicionInicial && !visitado[posicionActual]);
-        }
 
         // Completamos los hijos con los valores del otro padre
         // para las posiciones que no forman parte de ningún ciclo

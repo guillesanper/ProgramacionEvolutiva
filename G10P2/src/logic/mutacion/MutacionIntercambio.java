@@ -4,8 +4,10 @@ import java.util.Random;
 
 public class MutacionIntercambio implements Mutate {
     @Override
-    public void mutate(Integer[] chromosome) {
+    public Integer[] mutate(Integer[] originalChromosome) {
         Random rand = new Random();
+        Integer[] chromosome = originalChromosome.clone();
+
 
         int pos1 = rand.nextInt(chromosome.length);
         int pos2 = rand.nextInt(chromosome.length);
@@ -16,9 +18,10 @@ public class MutacionIntercambio implements Mutate {
             }
         }
 
-        int temp = chromosome[pos1];
-        chromosome[pos1] = chromosome[pos2];
-        chromosome[pos2] = temp;
+        chromosome[pos1] = originalChromosome[pos2];
+        chromosome[pos2] = originalChromosome[pos1];
+
+        return chromosome;
     }
 
 }
