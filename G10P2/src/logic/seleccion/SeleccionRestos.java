@@ -11,11 +11,10 @@ public class SeleccionRestos extends Seleccion{
             if (metidos == tamPoblacion) break;
             long apariciones = Math.round(list[i].getProb()*tamPoblacion);
 
-            if(apariciones < tamPoblacion-metidos )
-            for (int j = 0; j < apariciones; j++) {
-                seleccion[metidos++] = i;
+            if(apariciones <= tamPoblacion-metidos)
+                for (int j = 0; j < apariciones; j++) seleccion[metidos++] = i;
 
-            }
+
         }
 
         if (metidos != tamPoblacion) {
