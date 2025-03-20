@@ -7,7 +7,7 @@ public class SeleccionEstocasticoUniversal extends Seleccion {
 
         // Generar un punto de inicio aleatorio entre 0 y 1/tamPoblacion
         double paso = 1.0 / tamPoblacion;
-        double r = this.rand.nextDouble() * paso;
+        double r = 0.05;//this.rand.nextDouble() * paso;
 
         // Para cada posición de selección
         for (int i = 0; i < tamPoblacion; i++) {
