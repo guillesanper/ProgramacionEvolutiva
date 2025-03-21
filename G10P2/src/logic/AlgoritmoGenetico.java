@@ -63,6 +63,7 @@ public class AlgoritmoGenetico<T> {
     // Variables para datos relevantes
     private int crossed;
     private int mutated;
+    private double worstFitness;
 
     private Mapa map;
 
@@ -98,6 +99,8 @@ public class AlgoritmoGenetico<T> {
         currentGeneration = 0;
         crossed= 0;
         mutated = 0;
+        worstFitness = isMin() ? Double.MIN_VALUE : Double.MAX_VALUE;
+
 
         evaluate_population();
 
@@ -124,7 +127,7 @@ public class AlgoritmoGenetico<T> {
             evaluate_population();
         }
 
-        Transfer t = new Transfer(generationProgress, graphIntervals,best, true,crossed,mutated);
+        Transfer t = new Transfer(generationProgress, graphIntervals,best, true,crossed,mutated, worstFitness);
         controlPanel.update_graph(t);
     }
 
@@ -209,6 +212,10 @@ public class AlgoritmoGenetico<T> {
         for (int i = 0; i < populationSize; i++) {
             double fit = population[i].fitness;
             totalFitness += fit;
+
+            if (!compare(fit, worstFitness)) {
+                worstFitness = fit;
+            }
 
             if (elitQ.size() < eliteSize)
                 elitQ.add(new NodoIndividuo(fit, population[i]));

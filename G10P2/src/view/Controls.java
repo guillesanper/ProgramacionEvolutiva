@@ -35,6 +35,7 @@ public class Controls extends JPanel {
     private JTextArea textArea;
     private JTextArea bestFitnessArea;
     private JTextArea crossedMutedArea;
+    private JTextArea worstFitnessArea;
     private HouseView houseView;
 
 
@@ -155,7 +156,7 @@ public class Controls extends JPanel {
             if (historyGraphic.undo()) {
                 HistoryState state = historyGraphic.getState();
                 textArea.setText("Mejor Individuo: " + printIndividuo(state.getBest()) + "\n");
-                Transfer t = new Transfer(state.getVals(), state.getInterval(), state.getBest(), false, state.getCrossed(), state.getMuted());
+                Transfer t = new Transfer(state.getVals(), state.getInterval(), state.getBest(), false, state.getCrossed(), state.getMuted(),state.getWorstFitness());
                 update_graph(t);
                 plot2D.revalidate();
                 plot2D.repaint();
@@ -166,7 +167,7 @@ public class Controls extends JPanel {
             if (historyGraphic.redo()) {
                 HistoryState state = historyGraphic.getState();
                 textArea.setText("Mejor Individuo: " + printIndividuo(state.getBest()) + "\n");
-                Transfer t = new Transfer(state.getVals(), state.getInterval(), state.getBest(), false, state.getCrossed(), state.getMuted());
+                Transfer t = new Transfer(state.getVals(), state.getInterval(), state.getBest(), false, state.getCrossed(), state.getMuted(), state.getWorstFitness());
                 update_graph(t);
             }
         });
@@ -296,13 +297,14 @@ public class Controls extends JPanel {
 
 
         bestFitnessArea.setText(String.valueOf(t.best.getFitness()));
+        worstFitnessArea.setText(String.valueOf(t.worstFitness));
         textArea.setText(printIndividuo(t.best));
         textArea.setCaretPosition(0);
 
         crossedMutedArea.setText("Cruces: " + t.crossed + " | Mutaciones: " + t.muted);
 
         if (t.save)
-            this.historyGraphic.saveState(new HistoryState(t.vals, t.interval, t.best, t.crossed, t.muted));
+            this.historyGraphic.saveState(new HistoryState(t.vals, t.interval, t.best, t.crossed, t.muted, t.worstFitness));
 
         Mapa map = new Mapa();
 
@@ -345,6 +347,15 @@ public class Controls extends JPanel {
         historyPanel.add(new JLabel("Mejor fitness:"), gbc);
         gbc.gridy++;
         historyPanel.add(bestFitnessArea, gbc);
+        gbc.gridy++;
+
+        // Área para mostrar el peor fitness
+        worstFitnessArea = new JTextArea(1, 20);
+        worstFitnessArea.setEditable(false);
+        worstFitnessArea.setBorder(blackBorder);
+        historyPanel.add(new JLabel("Peor fitness:"), gbc);
+        gbc.gridy++;
+        historyPanel.add(worstFitnessArea, gbc);
         gbc.gridy++;
 
         // Área para mostrar el orden de habitaciones
