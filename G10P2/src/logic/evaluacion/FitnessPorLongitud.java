@@ -1,6 +1,7 @@
 package logic.evaluacion;
 
 import model.Mapa;
+import utils.Pair;
 
 public class FitnessPorLongitud implements FitnessFunction {
 
@@ -30,5 +31,10 @@ public class FitnessPorLongitud implements FitnessFunction {
         total += segmentDistance;
 
         return total;
+    }
+
+    @Override
+    public Pair<Double, Double> getLimits() {
+        return new Pair<>(50.00,300.00);
     }
 }

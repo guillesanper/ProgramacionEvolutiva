@@ -28,13 +28,14 @@ public class Controls extends JPanel {
     private JComboBox<String> mutacion_CBox;
     private JComboBox<String> escalado_CBox;
     private JSpinner dimensionSpinner;
-    private JCheckBox invMejoradoCheckbox; // Nuevo checkbox para INV mejorado
+    private JCheckBox invMejoradoCheckbox;
     private Plot2DPanel plot2D;
     private Valores valores;
     private HistoryGraphic historyGraphic;
     private JTextArea textArea;
     private JTextArea bestFitnessArea;
-    private HouseView houseView; // Declarar la instancia a nivel de clase
+    private JTextArea crossedMutedArea;
+    private HouseView houseView;
 
 
     /**
@@ -50,7 +51,7 @@ public class Controls extends JPanel {
         this.dimensionSpinner = new JSpinner();
         this.historyGraphic = new HistoryGraphic();
         this.houseView = new HouseView();
-        this.invMejoradoCheckbox = new JCheckBox("INV Mejorado"); // Inicialización del checkbox
+        this.invMejoradoCheckbox = new JCheckBox("INV Mejorado");
 
         init_GUI();
     }
@@ -64,11 +65,8 @@ public class Controls extends JPanel {
         // Crear un JTabbedPane para contener tanto la gráfica como la vista de la casa.
         JTabbedPane tabbedPane = new JTabbedPane();
 
-        // Pestaña para la gráfica
         JPanel plotPanel = crea_panel_central();
         tabbedPane.addTab("Gráfica", plotPanel);
-
-        // Crear la vista de la casa (HouseView) y añadirla en otra pestaña
         tabbedPane.addTab("Casa", houseView);
 
         // Agregar los paneles al layout principal de Controls
@@ -82,11 +80,10 @@ public class Controls extends JPanel {
         JPanel leftPanel = new JPanel(new GridBagLayout());
         leftPanel.setPreferredSize(new Dimension(335, 600));
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10); // Más separación
+        gbc.insets = new Insets(10, 10, 10, 10);
         String[] funciones = {"Original",
                 "Penalizacion por proximidad a obstaculos",
                 "Penalizacion por giros",
-                "Heuristica Mejorada",
                 "Costo de tiempo",
                 "Comparacion con la distancia euclidiana",
                 "Multicriterio"
@@ -302,6 +299,8 @@ public class Controls extends JPanel {
         textArea.setText(printIndividuo(t.best));
         textArea.setCaretPosition(0);
 
+        crossedMutedArea.setText("Cruces: " + t.crossed + " | Mutaciones: " + t.muted);
+
         if (t.save)
             this.historyGraphic.saveState(new HistoryState(t.vals, t.interval, t.best, t.crossed, t.muted));
 
@@ -309,6 +308,8 @@ public class Controls extends JPanel {
 
         houseView.setPath(map.calcularRutaCompleta(t.best));
         houseView.repaint();
+
+
     }
 
     public void update_error(String s) {
@@ -335,12 +336,7 @@ public class Controls extends JPanel {
         gbc.gridx = 0;
         gbc.gridy = 0;
 
-        textArea = new JTextArea(20, 20);
-        textArea.setEditable(false);
-        JScrollPane scrollPane = new JScrollPane(textArea);
-        scrollPane.setPreferredSize(new Dimension(280, 300));
-        gbc.gridy++;
-
+        // Área para mostrar el mejor fitness
         bestFitnessArea = new JTextArea(1, 20);
         bestFitnessArea.setEditable(false);
         // Crear un borde negro y aplicarlo al JTextArea
@@ -351,9 +347,23 @@ public class Controls extends JPanel {
         historyPanel.add(bestFitnessArea, gbc);
         gbc.gridy++;
 
+        // Área para mostrar el orden de habitaciones
         historyPanel.add(new JLabel("Orden de habitaciones:"), gbc);
         gbc.gridy++;
+        textArea = new JTextArea(15, 20); // Reduce un poco el tamaño para hacer espacio al nuevo componente
+        textArea.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        scrollPane.setPreferredSize(new Dimension(280, 250)); // Reduce un poco la altura
         historyPanel.add(scrollPane, gbc);
+        gbc.gridy++;
+
+        // Nueva área para mostrar cruces y mutaciones
+        historyPanel.add(new JLabel("Estadísticas:"), gbc);
+        gbc.gridy++;
+        crossedMutedArea = new JTextArea(1, 20);
+        crossedMutedArea.setEditable(false);
+        crossedMutedArea.setBorder(blackBorder);
+        historyPanel.add(crossedMutedArea, gbc);
 
         return historyPanel;
     }

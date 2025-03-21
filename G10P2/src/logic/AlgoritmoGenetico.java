@@ -129,7 +129,7 @@ public class AlgoritmoGenetico<T> {
     }
 
     private void mutate_population(){
-        mutacion.mut_population(population,elitQ);
+        mutated += mutacion.mut_population(population,elitQ);
     }
 
     private void cross_population(int[] seleccionados) {
@@ -150,6 +150,7 @@ public class AlgoritmoGenetico<T> {
 
         for (int i = 0; i < numCruce; i += 2) {
             reproduce(to_cross[i],to_cross[i+1]);
+            crossed +=2;
         }
     }
 

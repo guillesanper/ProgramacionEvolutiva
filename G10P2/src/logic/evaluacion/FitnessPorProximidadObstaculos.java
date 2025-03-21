@@ -1,6 +1,8 @@
 package logic.evaluacion;
 
 import model.Mapa;
+import utils.Pair;
+
 import java.awt.Point;
 import java.util.List;
 import java.util.HashMap;
@@ -64,6 +66,11 @@ public class FitnessPorProximidadObstaculos implements FitnessFunction {
 
         // Fitness final = fitness por longitud + penalización por proximidad
         return fitnessLongitud + (totalProximityPenalty * OBSTACLE_PROXIMITY_FACTOR);
+    }
+
+    @Override
+    public Pair<Double, Double> getLimits() {
+        return new Pair<>(50.00,800.00);
     }
 
     // Obtiene la ruta completa entre dos puntos usando caché

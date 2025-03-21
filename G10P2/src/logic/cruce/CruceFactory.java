@@ -20,6 +20,8 @@ public class CruceFactory {
                 return new CruceCO(chromosomeSize);
             case "INV":
                 return new CruceInvencion(chromosomeSize, FitnessFunctionFactory.getMap(),invMejorado);
+            case "ERX":
+                return new CruceERX(chromosomeSize);
             default:
                 return null;
         }

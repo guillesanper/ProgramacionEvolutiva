@@ -186,11 +186,11 @@ public class CruceInvencion extends Cruce<Integer> {
         return -1; // No debería llegar aquí
     }
 
-    private void optimizacionLocal(Integer[] tour) {
-        int n = tour.length;
+    private void optimizacionLocal(Integer[] chromosome) {
+        int n = chromosome.length;
         boolean mejorado = true;
         int iteraciones = 0;
-        int maxIteraciones = 50;
+        int maxIteraciones = 20;
 
         while (mejorado && iteraciones < maxIteraciones) {
             mejorado = false;
@@ -199,11 +199,11 @@ public class CruceInvencion extends Cruce<Integer> {
             // Buscar todas las posibles mejoras 2-opt
             for (int i = 0; i < n - 2; i++) {
                 for (int j = i + 2; j < n; j++) {
-                    if (j - i == n - 1) continue; // Evitar invertir el tour completo
+                    if (j - i == n - 1) continue; // Evitar invertir el chromosome// completo
 
                     // Calcular el cambio en la distancia
-                    if (evaluarMejora2Opt(tour, i, j)) {
-                        aplicar2Opt(tour, i, j);
+                    if (evaluarMejora2Opt(chromosome, i, j)) {
+                        aplicar2Opt(chromosome, i, j);
                         mejorado = true;
                     }
                 }
@@ -211,12 +211,12 @@ public class CruceInvencion extends Cruce<Integer> {
         }
     }
 
-    private boolean evaluarMejora2Opt(Integer[] tour, int i, int j) {
-        int n = tour.length;
-        int i1 = tour[i];
-        int i2 = tour[(i + 1) % n];
-        int j1 = tour[j];
-        int j2 = tour[(j + 1) % n];
+    private boolean evaluarMejora2Opt(Integer[] chromosome, int i, int j) {
+        int n = chromosome.length;
+        int i1 = chromosome[i];
+        int i2 = chromosome[(i + 1) % n];
+        int j1 = chromosome[j];
+        int j2 = chromosome[(j + 1) % n];
 
         double distanciaActual = mapa.calcularRuta(mapa.getHabitacion(i1), mapa.getHabitacion(i2)) +
                 mapa.calcularRuta(mapa.getHabitacion(j1), mapa.getHabitacion(j2));
@@ -228,14 +228,14 @@ public class CruceInvencion extends Cruce<Integer> {
         return distanciaNueva < distanciaActual;
     }
 
-    private void aplicar2Opt(Integer[] tour, int i, int j) {
+    private void aplicar2Opt(Integer[] chromosome, int i, int j) {
         // Invertir el segmento entre i+1 y j
         int inicio = i + 1;
         int fin = j;
         while (inicio < fin) {
-            int temp = tour[inicio];
-            tour[inicio] = tour[fin];
-            tour[fin] = temp;
+            int temp = chromosome[inicio];
+            chromosome[inicio] = chromosome[fin];
+            chromosome[fin] = temp;
             inicio++;
             fin--;
         }
