@@ -1,6 +1,7 @@
 package logic.mutacion;
 
 import java.util.Arrays;
+import java.util.Random;
 
 public class MutacionInvencion implements Mutate {
     @Override
@@ -8,7 +9,7 @@ public class MutacionInvencion implements Mutate {
         Integer[] mutation = new Integer[chromosome.length];
         // 1 2 3 4 | 5 6 7 8 9
         // 0 1 2 3 | 4 5 6 7 8
-        int cut = chromosome.length/2;
+        int cut = new Random().nextInt(chromosome.length-1)+1;
 
         Integer[] firstHalf = Arrays.copyOfRange(chromosome, 0, cut);
         Integer[] secondHalf = Arrays.copyOfRange(chromosome, cut, chromosome.length);
