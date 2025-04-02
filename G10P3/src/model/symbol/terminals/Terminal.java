@@ -11,17 +11,7 @@ public abstract class Terminal extends Expression {
     }
 
     @Override
-    public Object execute() {
-
-    }
-
-    @Override
-    public void setChild(int i, Expression ex) {
-
-    }
-
-    @Override
-    public Expression getChild(int i) {
-        return null;
+    public Object execute(boolean isThereFood) {
+        return this.operation;
     }
 }

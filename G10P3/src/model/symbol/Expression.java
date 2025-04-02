@@ -1,5 +1,3 @@
-
-// model/symbol/Expression.java (modificada para ser clase base)
 package model.symbol;
 
 import java.util.ArrayList;
@@ -21,7 +19,7 @@ public abstract class Expression {
         this.children = new ArrayList<>();
     }
 
-    public abstract Object execute(boolean hayComida);
+    public abstract Object execute(boolean isThereFood);
 
     public void addChild(Expression child) {
         this.children.add(child);
@@ -66,10 +64,6 @@ public abstract class Expression {
         return childrenCount;
     }
 
-    public void setChildrenCount(int childrenCount) {
-        this.childrenCount = childrenCount;
-    }
-
     public int countNodes() {
         int count = 1; // Contar este nodo
         for (Expression child : children) {
@@ -83,7 +77,7 @@ public abstract class Expression {
             Expression copy = this.getClass().getDeclaredConstructor().newInstance();
             copy.setX(this.x);
             copy.setY(this.y);
-            copy.setChildrenCount(this.childrenCount);
+            copy.childrenCount = this.childrenCount;
             copy.setOperation(this.operation);
 
             for (Expression child : children) {
