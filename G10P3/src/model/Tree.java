@@ -62,10 +62,10 @@ public class Tree {
     private Expression createRandomTerminal() {
         int choice = random.nextInt(3);
         switch (choice) {
-            case 0: return new Avanza();
-            case 1: return new Derecha();
-            case 2: return new Izquierda();
-            default: return new Avanza();
+            case 0: return new Advance();
+            case 1: return new Right();
+            case 2: return new Left();
+            default: return new Advance();
         }
     }
 
@@ -75,7 +75,7 @@ public class Tree {
 
         switch (choice) {
             case 0:
-                function = new SiComida();
+                function = new IfFood();
                 function.addChild(growExpression(depth + 1, maxDepth));
                 function.addChild(growExpression(depth + 1, maxDepth));
                 break;
