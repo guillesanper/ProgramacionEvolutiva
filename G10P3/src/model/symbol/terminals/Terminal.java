@@ -12,7 +12,7 @@ public abstract class Terminal extends Expression {
 
     @Override
     public Object execute() {
-        return this.operation;
+
     }
 
     @Override

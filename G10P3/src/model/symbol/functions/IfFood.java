@@ -2,16 +2,17 @@ package model.symbol.functions;
 
 import model.symbol.Expression;
 
+import java.util.ArrayList;
+
 public class IfFood extends Expression {
     public IfFood() {
         this.childrenCount = 2;
-        this.children = new Expression[this.childrenCount];
+        this.children = new ArrayList<>();
     }
 
-
     @Override
-    public void setChild(int i, Expression ex) {
-        this.children[i] = ex;
+    public Object execute(boolean hayComida) {
+        return null;
     }
 
     @Override
