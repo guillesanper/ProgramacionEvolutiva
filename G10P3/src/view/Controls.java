@@ -308,7 +308,7 @@ public class Controls extends JPanel {
 
         Mapa map = new Mapa();
 
-        houseView.setPath(map.calcularRutaCompleta(t.best));
+        //houseView.setPath(map.calcularRutaCompleta(t.best));
         houseView.repaint();
 
 
