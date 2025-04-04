@@ -5,7 +5,7 @@ import java.util.Random;
 public abstract class Individuo<T> {
     protected Random rand;
 
-    public T[] chromosome;
+    public T chromosome;
     public int numGens;
 
     public double[] min;

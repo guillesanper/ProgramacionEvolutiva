@@ -3,24 +3,22 @@ package model;
 import logic.evaluacion.FitnessFunctionFactory;
 import model.symbol.Expression;
 
-public class IndividuoTree extends Individuo<Expression> {
+public class IndividuoTree extends Individuo<Tree> {
 
-    public Tree tree;
-    public double fitness;
 
     public IndividuoTree(int maxDepth, int rows, int columns, int funcindex) {
-        tree = new Tree(maxDepth, rows, columns);
+        this.chromosome = new Tree(maxDepth, rows, columns);
 
         // Inicializar el árbol según el metodo especificado
         switch (funcindex) {
             case 0:
-                tree.createFullTree(maxDepth);
+                chromosome.createFullTree(maxDepth);
                 break;
             case 1:
-                tree.createRampedHalfAndHalfTree(maxDepth);
+                chromosome.createRampedHalfAndHalfTree(maxDepth);
                 break;
             default:
-                tree.createGrowTree(maxDepth);
+                chromosome.createGrowTree(maxDepth);
         }
 
         fitness = 0; // Inicialmente no hay fitness calculado
@@ -28,7 +26,7 @@ public class IndividuoTree extends Individuo<Expression> {
 
     // Constructor de copia
     public IndividuoTree(IndividuoTree other) {
-        this.tree = other.tree.copy();
+        this.chromosome = other.chromosome.copy();
         this.fitness = other.fitness;
     }
 
@@ -47,11 +45,11 @@ public class IndividuoTree extends Individuo<Expression> {
     }
 
     public Tree getTree() {
-        return tree;
+        return chromosome;
     }
 
     public void setTree(Tree tree) {
-        this.tree = tree;
+        this.chromosome = tree;
     }
 
 

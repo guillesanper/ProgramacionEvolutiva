@@ -9,10 +9,7 @@ import logic.mutacion.MutacionFactory;
 import logic.seleccion.Seleccion;
 import logic.seleccion.SeleccionFactory;
 import logic.seleccion.Seleccionable;
-import model.Individuo;
-import model.IndividuoFactory;
-import model.IndividuoTree;
-import model.Mapa;
+import model.*;
 import utils.Transfer;
 import utils.Valores;
 import utils.NodoIndividuo;
@@ -166,11 +163,7 @@ public class AlgoritmoGenetico<T> {
     }
 
     private void reproduce(int pos1, int pos2) {
-        T[] c1 = Arrays.copyOf(population[pos1].chromosome, population[pos1].chromosome.length);
-        T[] c2 = Arrays.copyOf(population[pos2].chromosome, population[pos2].chromosome.length);
-        this.cross.cross(c1, c2);
-        population[pos1].chromosome = c1.clone();
-        population[pos2].chromosome = c2.clone();
+        this.cross.cross(population[pos1].chromosome, population[pos2].chromosome);
     }
 
 
@@ -194,7 +187,7 @@ public class AlgoritmoGenetico<T> {
             copy[i] = (Individuo<T>) IndividuoFactory.createIndividuo(funcIndex);
 
             // Copiar los valores del cromosoma sin compartir la referencia
-            copy[i].chromosome = Arrays.copyOf(population[selec[i]].chromosome, population[selec[i]].chromosome.length);
+            copy[i].chromosome = population[selec[i]].chromosome;
 
             // Copiar el fitness también para coherencia
             copy[i].fitness = population[selec[i]].getFitness();
@@ -237,11 +230,14 @@ public class AlgoritmoGenetico<T> {
             }
         }
 
-
-        if(compare(bestGen,totalBest)){
-            best.chromosome = bestGenInd.chromosome.clone();
-            best.fitness = bestGenInd.fitness;
-            totalBest = bestGen;
+        try {
+            if (compare(bestGen, totalBest)) {
+                best.chromosome = (T)((Tree) bestGenInd.chromosome).clone();
+                best.fitness = bestGenInd.fitness;
+                totalBest = bestGen;
+            }
+        }catch (CloneNotSupportedException c){
+            System.out.println("Error al clonar el individuo");
         }
 
         generationProgress[0][currentGeneration] = totalBest;
