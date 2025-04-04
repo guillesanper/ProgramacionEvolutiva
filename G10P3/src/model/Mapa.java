@@ -1,360 +1,219 @@
 package model;
 
 import java.awt.Point;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
+/**
+ * Clase que representa el entorno de la hormiga y rastrea su estado.
+ * Simula el comportamiento que tendría la vista HouseView pero sin componentes gráficos
+ * para poder ejecutar la evaluación de fitness de manera eficiente.
+ */
 public class Mapa {
-    public static final int FILAS = 15;
-    public static final int COLS = 15;
+    private static final int ROWS = 32;
+    private static final int COLS = 32;
+
+    // Matriz que representa el estado del tablero
     private String[][] grid;
-    private Point base;
-    private Map<Integer, Point> habitaciones;
-    private Map<String, Double> routeCache = new HashMap<>();
 
+    // Posición actual de la hormiga (fila, columna)
+    private Point position;
 
+    // Dirección actual de la hormiga (0=Este, 1=Sur, 2=Oeste, 3=Norte)
+    private int direction;
+
+    // Contador de alimentos encontrados
+    private int foodEaten;
+
+    // Lista de posiciones visitadas para análisis posterior si es necesario
+    private List<Point> path;
+
+    /**
+     * Constructor que inicializa el tablero con el rastro de Santa Fe.
+     */
     public Mapa() {
-        grid = new String[FILAS][COLS];
-        inicializarGrid();
-        definirBase();
-        definirHabitaciones();
-        definirObstaculos();
-    }
+        // Inicializar la matriz
+        grid = new String[ROWS][COLS];
 
-    private void inicializarGrid() {
-        for (int i = 0; i < FILAS; i++) {
+        // Llenar con espacios vacíos
+        for (int i = 0; i < ROWS; i++) {
             for (int j = 0; j < COLS; j++) {
-                grid[i][j] = " "; // zona transitable
-            }
-        }
-    }
-
-    private void definirBase() {
-        // Base en (7,7)
-        base = new Point(7, 7);
-        grid[7][7] = "B";
-    }
-
-    private void definirHabitaciones() {
-        // Se definen las 20 habitaciones con sus coordenadas fijas
-        habitaciones = new HashMap<>();
-        habitaciones.put(1, new Point(2, 2));    // Sala
-        habitaciones.put(2, new Point(2, 12));   // Cocina
-        habitaciones.put(3, new Point(12, 2));   // Dormitorio
-        habitaciones.put(4, new Point(12, 12));  // Baño
-        habitaciones.put(5, new Point(2, 7));    // Comedor
-        habitaciones.put(6, new Point(7, 2));    // Oficina
-        habitaciones.put(7, new Point(7, 12));   // Estudio
-        habitaciones.put(8, new Point(12, 7));   // Lavandería
-        habitaciones.put(9, new Point(0, 7));    // Terraza
-        habitaciones.put(10, new Point(7, 0));   // Garaje
-        habitaciones.put(11, new Point(14, 7));  // Jardín
-        habitaciones.put(12, new Point(7, 14));  // Sótano
-        habitaciones.put(13, new Point(0, 0));   // Balcón
-        habitaciones.put(14, new Point(0, 14));  // Despacho
-        habitaciones.put(15, new Point(14, 0));  // Vestíbulo
-        habitaciones.put(16, new Point(14, 14)); // Cuarto de lavado
-        habitaciones.put(17, new Point(4, 4));   // Sala de estar
-        habitaciones.put(18, new Point(4, 12));  // Sala de juegos
-        habitaciones.put(19, new Point(10, 4));  // Sala de TV
-        habitaciones.put(20, new Point(10, 12)); // Sala de reuniones
-
-        // Colocar los símbolos en el grid según la especificación:
-        // Habitaciones 1-9 muestran su dígito y 10-20 se representan con letras (A a K)
-        for (Map.Entry<Integer, Point> entry : habitaciones.entrySet()) {
-            Point p = entry.getValue();
-            int id = entry.getKey();
-            String simbolo;
-            if (id < 10) {
-                simbolo = Integer.toString(id);
-            } else {
-                simbolo = String.valueOf((char) ('A' + (id - 10)));
-            }
-            grid[p.x][p.y] = simbolo;
-        }
-    }
-
-    private void definirObstaculos() {
-        // Obstáculo: pared horizontal en fila 5, columnas 5 a 9
-        for (int col = 5; col <= 9; col++) {
-            grid[5][col] = "■";
-        }
-        // Obstáculo: pared vertical en columna 10, filas 8 a 12
-        for (int fila = 8; fila <= 12; fila++) {
-            grid[fila][10] = "■";
-        }
-        // Obstáculos individuales: (10,3) y (11,4)
-        grid[10][3] = "■";
-        grid[11][4] = "■";
-        // Obstáculo adicional – pared vertical: columna 6, filas 10 a 13
-        for (int fila = 10; fila <= 13; fila++) {
-            grid[fila][6] = "■";
-        }
-        // Obstáculo adicional – pared horizontal: fila 8, columnas 1 a 4
-        for (int col = 1; col <= 4; col++) {
-            grid[8][col] = "■";
-        }
-        // Obstáculos en la esquina superior derecha: (0,13) y (1,13)
-        grid[0][13] = "■";
-        grid[1][13] = "■";
-        // Obstáculo adicional – pared horizontal: fila 3, columnas 8 a 11
-        for (int col = 8; col <= 11; col++) {
-            grid[3][col] = "■";
-        }
-    }
-
-    public List<Point> calcularRutaCompleta(Individuo individuo) {
-        List<Point> rutaCompleta = new ArrayList<>();
-        // Obtener la base
-        Point basePoint = getBase();
-        // Suponemos que el cromosoma es de tipo Integer[]
-        Integer[] orden = (Integer[]) individuo.chromosome.clone();
-        if (orden == null || orden.length == 0) {
-            return rutaCompleta;
-        }
-
-        // Desde la base a la primera habitación
-        Point primeraHab = getHabitacion(orden[0]);
-        List<Point> segmento = calcularRutaCompleta(basePoint, primeraHab);
-        if (segmento != null) {
-            rutaCompleta.addAll(segmento);
-        }
-
-        // Para cada par consecutivo de habitaciones
-        for (int i = 0; i < orden.length - 1; i++) {
-            Point inicio = getHabitacion(orden[i]);
-            Point fin = getHabitacion(orden[i + 1]);
-            segmento = calcularRutaCompleta(inicio, fin);
-            if (segmento != null) {
-                // Evitar duplicar el punto de unión
-                if (!rutaCompleta.isEmpty() && !segmento.isEmpty()) {
-                    segmento.remove(0);
-                }
-                rutaCompleta.addAll(segmento);
+                grid[i][j] = " ";
             }
         }
 
-        // Desde la última habitación de vuelta a la base
-        Point ultimaHab = getHabitacion(orden[orden.length - 1]);
-        segmento = calcularRutaCompleta(ultimaHab, basePoint);
-        if (segmento != null) {
-            if (!rutaCompleta.isEmpty() && !segmento.isEmpty()) {
-                segmento.remove(0);
-            }
-            rutaCompleta.addAll(segmento);
-        }
-        return rutaCompleta;
+        // Cargar el rastro de comida de Santa Fe
+        loadSantaFeTrail();
+
+        // Inicializar posición y dirección de la hormiga
+        position = new Point(0, 0);
+        direction = 0; // Este
+        foodEaten = 0;
+
+        // Inicializar la lista de ruta
+        path = new ArrayList<>();
+        path.add(new Point(position));
     }
 
     /**
-     * Implementa el algoritmo A* para calcular la ruta (distancia) entre dos puntos.
-     * Retorna la distancia mínima en pasos o -1 si no existe un camino.
+     * Carga el rastro de Santa Fe con 89 bocados de comida
+     * (idéntico al presente en HouseView).
      */
+    private void loadSantaFeTrail() {
+        // Rastro "Santa Fe" (89 posiciones):
+        int[][] santaFeTrail = {
+                {0,0}, {1,0}, {2,0}, {3,0},        // Parte superior inicial
+                {3,1}, {3,2}, {3,3}, {3,4}, {3,5},
+                {4,5}, {5,5}, {6,5},
+                {8,5}, {9,5}, {10,5}, {11,5}, {12,5},
+                {12,6}, {12,7}, {12,8}, {12,9}, {12,10},
+                {12,12}, {12,13}, {12,14}, {12,15},
+                {12,18}, {12,19}, {12,20}, {12,21},{12,22},{12,23},
+                {11,24}, {10,24}, {9,24},{8,24},{7,24},                 // Extremo derecho
+                {4,24},{3,24},{1,25},{1,26},{1,27},{1,28},
+                {2,30},{3,30},{4,30},{5,30},
+                {7,29},{7,28},
+                {8,27},{9,27},{10,27},{11,27},{12,27},{13,27},{14,27},
+                {16,26},{16,25},{16,24},{16,21},{16,19},{16,18},{16,17},
+                {17,16},{20,15},{20,14},{20,11},{20,10},{20,9},{20,8},{21,5},{22,5},{24,4},{24,3},{25,2},
+                {26,2},{27,2},{29,3},{29,4},{29,6},{29,9},{29,12},{28,14},{27,14},{26,14},{24,18},{27,19},
+                {26,22},{23,24}// Parte superior final
+        };
 
-    public double calcularRuta(Point inicio, Point fin) {
-        String key = inicio.x + "," + inicio.y + "-" + fin.x + "," + fin.y;
-        if (routeCache.containsKey(key)) {
-            return routeCache.get(key);
-        }
-        if (!esTransitable(inicio.x, inicio.y) || !esTransitable(fin.x, fin.y)) {
-            routeCache.put(key, Double.POSITIVE_INFINITY);
-            return Double.POSITIVE_INFINITY;
-        }
-
-        PriorityQueue<Nodo> openSet = new PriorityQueue<>(Comparator.comparingDouble(a -> a.f));
-        boolean[][] cerrados = new boolean[FILAS][COLS];
-        double[][] gScore = new double[FILAS][COLS];
-        for (int i = 0; i < FILAS; i++) {
-            Arrays.fill(gScore[i], Double.POSITIVE_INFINITY);
-        }
-        Nodo inicioNodo = new Nodo(inicio.x, inicio.y, 0, heuristica(inicio.x, inicio.y, fin.x, fin.y), null);
-        openSet.add(inicioNodo);
-        gScore[inicio.x][inicio.y] = 0;
-
-        int[][] direcciones = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } };
-
-        while (!openSet.isEmpty()) {
-            Nodo actual = openSet.poll();
-            if (actual.x == fin.x && actual.y == fin.y) {
-                routeCache.put(key, actual.g);
-                return actual.g;
-            }
-            cerrados[actual.x][actual.y] = true;
-            for (int[] dir : direcciones) {
-                int nx = actual.x + dir[0];
-                int ny = actual.y + dir[1];
-                if (nx < 0 || nx >= FILAS || ny < 0 || ny >= COLS) {
-                    continue;
-                }
-                if (!esTransitable(nx, ny) || cerrados[nx][ny]) {
-                    continue;
-                }
-                double costoTentativo = actual.g + 1;
-                if (costoTentativo < gScore[nx][ny]) {
-                    gScore[nx][ny] = costoTentativo;
-                    double h = heuristica(nx, ny, fin.x, fin.y);
-                    Nodo vecino = new Nodo(nx, ny, costoTentativo, h, actual);
-                    openSet.add(vecino);
-                }
-            }
-        }
-        routeCache.put(key, Double.POSITIVE_INFINITY);
-        return Double.POSITIVE_INFINITY;
-    }
-
-    public List<Point> calcularRutaCompleta(Point inicio, Point fin) {
-        if (!esTransitable(inicio.x, inicio.y) || !esTransitable(fin.x, fin.y)) {
-            return null;
+        // Colocar la comida en el grid según las coordenadas anteriores
+        for (int[] coord : santaFeTrail) {
+            grid[coord[1]][coord[0]] = "F";  // Recuerda: coord[0] = x (col), coord[1] = y (fila)
         }
 
-        PriorityQueue<Nodo> openSet = new PriorityQueue<>(Comparator.comparingDouble(n -> n.f));
-        Set<Point> cerrados = new HashSet<>();
-        Map<Point, Nodo> mejorNodo = new HashMap<>();
-
-        Nodo inicioNodo = new Nodo(inicio.x, inicio.y, 0, heuristica(inicio.x, inicio.y, fin.x, fin.y), null);
-        openSet.add(inicioNodo);
-        mejorNodo.put(new Point(inicio.x, inicio.y), inicioNodo);
-
-        int[][] direcciones = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } };
-
-        while (!openSet.isEmpty()) {
-            Nodo actual = openSet.poll();
-            Point puntoActual = new Point(actual.x, actual.y);
-
-            if (actual.x == fin.x && actual.y == fin.y) {
-                // Reconstruir el camino
-                List<Point> camino = new ArrayList<>();
-                while (actual != null) {
-                    camino.add(new Point(actual.x, actual.y));
-                    actual = actual.padre;
-                }
-                Collections.reverse(camino);
-                return camino;
-            }
-
-            cerrados.add(puntoActual);
-
-            for (int[] dir : direcciones) {
-                int nx = actual.x + dir[0];
-                int ny = actual.y + dir[1];
-                Point vecino = new Point(nx, ny);
-
-                // Validaciones más estrictas
-                if (nx < 0 || nx >= FILAS || ny < 0 || ny >= COLS)
-                    continue;
-
-                // Solo permitir moverse a celdas transitables que no estén cerradas
-                if (!esTransitable(nx, ny) || cerrados.contains(vecino))
-                    continue;
-
-                double costoTentativo = actual.g + 1;
-
-                // Verificar si este camino es mejor que el anterior
-                Nodo vecinoNodo = mejorNodo.get(vecino);
-                boolean mejorCamino = vecinoNodo == null || costoTentativo < vecinoNodo.g;
-
-                if (mejorCamino) {
-                    double h = heuristica(nx, ny, fin.x, fin.y);
-                    Nodo nuevoNodo = new Nodo(nx, ny, costoTentativo, h, actual);
-
-                    // Actualizar o agregar el nodo
-                    if (vecinoNodo == null) {
-                        openSet.add(nuevoNodo);
-                    } else {
-                        openSet.remove(vecinoNodo);
-                        openSet.add(nuevoNodo);
-                    }
-
-                    mejorNodo.put(vecino, nuevoNodo);
-                }
-            }
-        }
-
-        return null; // No se encontró camino
-    }
-
-    // Metodo para validar si una celda es transitable (no es obstáculo)
-    private boolean esTransitable(int x, int y) {
-        // Verificar primero que las coordenadas estén dentro de los límites del grid
-        if (x < 0 || x >= FILAS || y < 0 || y >= COLS) {
-            return false;
-        }
-
-        // Considerar como intransitable si es un obstáculo explícito
-        return !grid[x][y].equals("■");
-    }
-
-    // Metodo auxiliar de heurística Manhattan para A*
-    private double heuristica(int x, int y, int xf, int yf) {
-        return Math.abs(x - xf) + Math.abs(y - yf);
+        // La posición inicial ya no tiene comida, es donde está la hormiga
+        grid[0][0] = "A";
     }
 
     /**
-     * Dado un individuo representado como una lista de puntos (el orden de nodos a visitar),
-     * calcula el recorrido completo entre cada par de puntos usando A* y devuelve el grid
-     * que incluye el recorrido marcado (con el símbolo ".") sin sobrescribir base, habitaciones u obstáculos.
+     * Mueve la hormiga hacia adelante en la dirección actual.
+     * Si hay comida en esa celda, la consume.
      */
-    public String[][] obtenerGridConRecorridoIndividuo(List<Point> puntosIndividuo) {
-        String[][] gridConRecorrido = new String[FILAS][COLS];
-        // Copiar el grid original
-        for (int i = 0; i < FILAS; i++) {
-            System.arraycopy(grid[i], 0, gridConRecorrido[i], 0, COLS);
+    public void moveForward() {
+        // Calcular nueva posición según la dirección
+        int newX = position.x;
+        int newY = position.y;
+
+        switch (direction) {
+            case 0: // Este
+                newY = (newY + 1) % COLS;
+                break;
+            case 1: // Sur
+                newX = (newX + 1) % ROWS;
+                break;
+            case 2: // Oeste
+                newY = (newY - 1 + COLS) % COLS;
+                break;
+            case 3: // Norte
+                newX = (newX - 1 + ROWS) % ROWS;
+                break;
         }
 
-        List<Point> rutaCompleta = new ArrayList<>();
-        // Calcular el camino entre cada par de puntos consecutivos
-        for (int i = 0; i < puntosIndividuo.size() - 1; i++) {
-            Point inicio = puntosIndividuo.get(i);
-            Point fin = puntosIndividuo.get(i + 1);
-            List<Point> caminoSegmento = calcularRutaCompleta(inicio, fin);
-            if (caminoSegmento == null) {
-                // Podrías manejar el caso de no encontrar camino según tu lógica
-                continue;
-            }
-            // Para evitar marcar dos veces el punto de unión, eliminamos el primer punto
-            if (i > 0 && !caminoSegmento.isEmpty()) {
-                caminoSegmento.remove(0);
-            }
-            rutaCompleta.addAll(caminoSegmento);
-        }
+        // Marcar la posición actual como parte del camino
+        grid[position.x][position.y] = "·";
 
-        // Marcar el recorrido en el grid (sin sobrescribir símbolos ya presentes)
-        for (Point p : rutaCompleta) {
-            if (gridConRecorrido[p.x][p.y].equals(" ")) {
-                gridConRecorrido[p.x][p.y] = "·";
-            }
-        }
+        // Actualizar posición
+        position = new Point(newX, newY);
 
-        return gridConRecorrido;
-    }
+        // Registrar el movimiento en el camino
+        path.add(new Point(position));
 
-
-    // Clase interna para representar un nodo en la búsqueda A*
-    private class Nodo {
-        int x, y;
-        double g;      // Costo desde el inicio hasta este nodo.
-        double h;      // Estimación (heurística) desde este nodo al destino.
-        double f;      // f = g + h.
-        Nodo padre;
-
-        public Nodo(int x, int y, double g, double h, Nodo padre) {
-            this.x = x;
-            this.y = y;
-            this.g = g;
-            this.h = h;
-            this.f = g + h;
-            this.padre = padre;
+        // Verificar si hay comida en la nueva posición
+        if ("F".equals(grid[newX][newY])) {
+            foodEaten++;
+            // Marcar que la comida ha sido consumida
+            grid[newX][newY] = "A";
+        } else {
+            // Si no hay comida, simplemente marcar la posición de la hormiga
+            grid[newX][newY] = "A";
         }
     }
 
-    public Point getBase() {
-        return base;
+    /**
+     * Gira la hormiga 90 grados a la derecha.
+     */
+    public void turnRight() {
+        direction = (direction + 1) % 4;
     }
 
-    public Point getHabitacion(int id) {
-        return habitaciones.get(id);
+    /**
+     * Gira la hormiga 90 grados a la izquierda.
+     */
+    public void turnLeft() {
+        direction = (direction + 3) % 4;
     }
 
+    /**
+     * Verifica si hay comida en la celda adelante.
+     * @return true si hay comida adelante, false en caso contrario
+     */
+    public boolean isFoodAhead() {
+        int x = position.x;
+        int y = position.y;
+
+        switch (direction) {
+            case 0: // Este
+                y = (y + 1) % COLS;
+                break;
+            case 1: // Sur
+                x = (x + 1) % ROWS;
+                break;
+            case 2: // Oeste
+                y = (y - 1 + COLS) % COLS;
+                break;
+            case 3: // Norte
+                x = (x - 1 + ROWS) % ROWS;
+                break;
+        }
+
+        return "F".equals(grid[x][y]);
+    }
+
+    /**
+     * Obtiene la cantidad de alimentos encontrados/consumidos.
+     * @return número de alimentos consumidos
+     */
+    public int getFoodEaten() {
+        return foodEaten;
+    }
+
+    /**
+     * Obtiene la lista de posiciones visitadas por la hormiga.
+     * @return lista de puntos que representan el camino recorrido
+     */
+    public List<Point> getPath() {
+        return path;
+    }
+
+    /**
+     * Obtiene una copia del estado actual del tablero.
+     * @return matriz que representa el estado actual del tablero
+     */
     public String[][] getGrid() {
-        return grid;
+        String[][] copy = new String[ROWS][COLS];
+        for (int i = 0; i < ROWS; i++) {
+            System.arraycopy(grid[i], 0, copy[i], 0, COLS);
+        }
+        return copy;
+    }
+
+    /**
+     * Obtiene la posición actual de la hormiga.
+     * @return punto con la posición actual
+     */
+    public Point getPosition() {
+        return new Point(position);
+    }
+
+    /**
+     * Obtiene la dirección actual de la hormiga.
+     * @return entero que representa la dirección (0=Este, 1=Sur, 2=Oeste, 3=Norte)
+     */
+    public int getDirection() {
+        return direction;
     }
 }

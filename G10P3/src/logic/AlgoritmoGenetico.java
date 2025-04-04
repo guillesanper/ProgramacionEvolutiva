@@ -91,7 +91,7 @@ public class AlgoritmoGenetico<T> {
         this.selection = SeleccionFactory.getMetodoSeleccion(selectionType);
         this.seleccionables = new Seleccionable[this.populationSize];
 
-        this.cross = (Cruce<T>) CruceFactory.getCruceType(crossType, dimension, valores.invMejorado);
+        this.cross = (Cruce<T>) CruceFactory.getCruceType(crossType);
         this.mutacion = new Mutacion(probMutacion, valores.mut_idx);
 
         // Almacena el progreso de las generaciones
