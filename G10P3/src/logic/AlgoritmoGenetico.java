@@ -183,7 +183,7 @@ public class AlgoritmoGenetico<T> {
         Individuo<T>[] copy = new Individuo[populationSize];
         for (int i = 0; i < populationSize; i++) {
             // Crear un nuevo individuo para evitar referencias compartidas
-            copy[i] = (Individuo<T>) IndividuoFactory.createIndividuo(funcIndex, errorValue, dimension,map);
+            copy[i] = (Individuo<T>) IndividuoFactory.createIndividuo(funcIndex);
 
             // Copiar los valores del cromosoma sin compartir la referencia
             copy[i].chromosome = Arrays.copyOf(population[selec[i]].chromosome, population[selec[i]].chromosome.length);
@@ -322,11 +322,11 @@ public class AlgoritmoGenetico<T> {
     private void initialize_population(int func_index, double errorValue) {
         this.population = new Individuo[populationSize];
         for (int i = 0; i < this.populationSize; i++) {
-            this.population[i] = (Individuo<T>) IndividuoFactory.createIndividuo(func_index, this.errorValue, dimension,map);
+            this.population[i] = (Individuo<T>) IndividuoFactory.createIndividuo(func_index);
         }
         this.best = this.population[0];
         this.totalBest = isMin() ? Double.MAX_VALUE : Double.MIN_VALUE;
-        this.graphIntervals = IndividuoFactory.getInterval(funcIndex);
+        this.graphIntervals = IndividuoFactory.getInterval();
     }
 
     private void setValues(Valores valores) {

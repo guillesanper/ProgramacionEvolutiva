@@ -82,12 +82,10 @@ public class Controls extends JPanel {
         leftPanel.setPreferredSize(new Dimension(335, 600));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
-        String[] funciones = {"Original",
-                "Penalizacion por proximidad a obstaculos",
-                "Penalizacion por giros",
-                "Costo de tiempo",
-                "Comparacion con la distancia euclidiana",
-                "Multicriterio"
+        String[] funciones = {
+                "FULL",
+                "RAMPED HALF",
+                "GROW"
         };
         String[] seleccion = {"Ruleta",
                 "Torneo Deterministico",
@@ -194,7 +192,7 @@ public class Controls extends JPanel {
         gbc.gridy++;
         leftPanel.add(new JLabel("  Prob. Mutacion:"), gbc);
         gbc.gridy++;
-        leftPanel.add(new JLabel("  Funcion:"), gbc);
+        leftPanel.add(new JLabel("  Metodo de inicializacion:"), gbc);
         gbc.gridy++;
         leftPanel.add(new JLabel("  Escalado"), gbc);
         gbc.gridy++;

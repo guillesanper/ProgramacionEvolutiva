@@ -6,15 +6,13 @@ import utils.Pair;
 
 public class IndividuoFactory {
 
-    private static FitnessFunctionFactory fff ;
 
-    public static Individuo<?> createIndividuo(int func_ind, double valError, int d,Mapa map) {
-        fff = new FitnessFunctionFactory();
-        FitnessFunction fn = fff.getFunction(func_ind);
-        return new IndividuoRobot(fn);
+    public static Individuo<?> createIndividuo(int func_ind) {
+        FitnessFunction fn = FitnessFunctionFactory.getInstance().getFunction(func_ind);
+        return new IndividuoTree(4,Mapa.getRows(), Mapa.getCols(),func_ind);
     }
 
-    public static Pair<Double, Double> getInterval(int funcIndex) {
-        return fff.getInterval();
+    public static Pair<Double, Double> getInterval() {
+        return FitnessFunctionFactory.getInstance().getInterval();
     }
 }

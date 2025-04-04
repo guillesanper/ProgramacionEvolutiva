@@ -1,5 +1,6 @@
 package model;
 
+import logic.evaluacion.FitnessFunctionFactory;
 import model.symbol.Expression;
 
 public class IndividuoTree extends Individuo<Expression> {
@@ -7,15 +8,15 @@ public class IndividuoTree extends Individuo<Expression> {
     public Tree tree;
     public double fitness;
 
-    public IndividuoTree(int maxDepth, int rows, int columns, String initMethod) {
+    public IndividuoTree(int maxDepth, int rows, int columns, int funcindex) {
         tree = new Tree(maxDepth, rows, columns);
 
         // Inicializar el árbol según el metodo especificado
-        switch (initMethod.toUpperCase()) {
-            case "FULL":
+        switch (funcindex) {
+            case 0:
                 tree.createFullTree(maxDepth);
                 break;
-            case "RAMPED_HALF":
+            case 1:
                 tree.createRampedHalfAndHalfTree(maxDepth);
                 break;
             default:
@@ -37,6 +38,7 @@ public class IndividuoTree extends Individuo<Expression> {
     }
 
     public double getFitness() {
+
         return fitness;
     }
 

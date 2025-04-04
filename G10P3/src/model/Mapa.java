@@ -216,4 +216,12 @@ public class Mapa {
     public int getDirection() {
         return direction;
     }
+
+    public static int getRows(){
+        return ROWS;
+    }
+
+    public static int getCols(){
+        return COLS;
+    }
 }
