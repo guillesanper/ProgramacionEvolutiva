@@ -2,7 +2,6 @@ package model.symbol.terminals;
 
 import model.symbol.Expression;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
@@ -20,8 +19,9 @@ public abstract class Terminal extends Expression {
         return this.operation;
     }
 
+    @Override
     public void mutate() {
-        List<String> ops = List.of("Advance", "Right", "Left");
+        List<String> ops = List.of(Advance.OP, Left.OP, Right.OP);
         Random rand = new Random();
         String newop;
         int choice;
@@ -33,7 +33,12 @@ public abstract class Terminal extends Expression {
     }
 
     @Override
-    public void collectTerminals(List<Terminal> terminals) {
+    public void collectTerminals(List<Expression> terminals) {
         terminals.add(this);
+    }
+
+    @Override
+    public void collectFunctions(List<Expression> functions) {
+
     }
 }

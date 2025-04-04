@@ -1,7 +1,5 @@
 package model.symbol;
 
-import model.symbol.terminals.Terminal;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -114,7 +112,14 @@ public abstract class Expression {
         return sb.toString();
     }
 
-    public void collectTerminals(List<Terminal> terminals) {
-        for (Expression child : this.children) if (child != null) child.collectTerminals(terminals);
+    public void collectTerminals(List<Expression> terminals) {
+        for (Expression child : this.children) child.collectTerminals(terminals);
     }
+
+    public void collectFunctions(List<Expression> functions) {
+        functions.add(this);
+        for (Expression child : this.children) child.collectFunctions(functions);
+    }
+
+    public abstract void mutate();
 }

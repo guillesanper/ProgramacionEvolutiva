@@ -2,7 +2,6 @@ package model;
 
 import model.symbol.Expression;
 import model.symbol.ExpressionFactory;
-import model.symbol.terminals.Terminal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -123,9 +122,15 @@ public class Tree {
     }
 
     // Método auxiliar para recolectar todos los nodos terminales del árbol
-    public void collectTerminals(List<Terminal> terminals) {
+    public void collectTerminals(List<Expression> terminals) {
         this.root.collectTerminals(terminals);
     }
+
+    // Método auxiliar para recolectar todos los nodos terminales del árbol
+    public void collectFunctions(List<Expression> functions) {
+        this.root.collectFunctions(functions);
+    }
+
 
     // Método para reemplazar un subárbol
     public void replaceSubtree(Expression target, Expression replacement) {
