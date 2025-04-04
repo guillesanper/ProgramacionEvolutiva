@@ -1,8 +1,8 @@
 package model;
 
 import model.symbol.Expression;
-import model.symbol.functions.*;
-import model.symbol.terminals.*;
+import model.symbol.ExpressionFactory;
+import model.symbol.terminals.Terminal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,43 +60,34 @@ public class Tree {
     }
 
     private Expression createRandomTerminal() {
-        int choice = random.nextInt(3);
-        switch (choice) {
-            case 0: return new Advance();
-            case 1: return new Right();
-            case 2: return new Left();
-            default: return new Advance();
-        }
+        return ExpressionFactory.createRandomTerminal();
     }
 
     private Expression createRandomFunction(int depth, int maxDepth) {
         int choice = random.nextInt(3);
-        Expression function;
+        Expression a;
+        Expression b;
 
         switch (choice) {
             case 0:
-                function = new IfFood();
-                function.addChild(growExpression(depth + 1, maxDepth));
-                function.addChild(growExpression(depth + 1, maxDepth));
-                break;
+                a = growExpression(depth + 1, maxDepth);
+                b = growExpression(depth + 1, maxDepth);
+                return ExpressionFactory.createIfFood(a, b);
             case 1:
-                function = new Prog2();
-                function.addChild(growExpression(depth + 1, maxDepth));
-                function.addChild(growExpression(depth + 1, maxDepth));
-                break;
+                a = growExpression(depth + 1, maxDepth);
+                b = growExpression(depth + 1, maxDepth);
+                return ExpressionFactory.createProg2(a, b);
             case 2:
-                function = new Prog3();
-                function.addChild(growExpression(depth + 1, maxDepth));
-                function.addChild(growExpression(depth + 1, maxDepth));
-                function.addChild(growExpression(depth + 1, maxDepth));
-                break;
+                a = growExpression(depth + 1, maxDepth);
+                b = growExpression(depth + 1, maxDepth);
+                Expression c = growExpression(depth + 1, maxDepth);
+                return ExpressionFactory.createProg3(a, b, c);
             default:
-                function = new Prog2();
-                function.addChild(growExpression(depth + 1, maxDepth));
-                function.addChild(growExpression(depth + 1, maxDepth));
+                a = growExpression(depth + 1, maxDepth);
+                b = growExpression(depth + 1, maxDepth);
+                return ExpressionFactory.createProg2(a, b);
         }
 
-        return function;
     }
 
     // Método para implementar la inicialización "Ramped and Half"
@@ -129,6 +120,11 @@ public class Tree {
                 collectNodes(child, nodes);
             }
         }
+    }
+
+    // Método auxiliar para recolectar todos los nodos terminales del árbol
+    public void collectTerminals(List<Terminal> terminals) {
+        this.root.collectTerminals(terminals);
     }
 
     // Método para reemplazar un subárbol

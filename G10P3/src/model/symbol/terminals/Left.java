@@ -7,6 +7,7 @@ public class Left extends Terminal {
         super("Left");
     }
 
+    @Override
     public Expression clone() {
         return new Left();
     }

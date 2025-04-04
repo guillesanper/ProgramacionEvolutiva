@@ -6,6 +6,7 @@ public class Prog3 extends Expression {
     public Prog3() {
         super();
         this.childrenCount = 3;
+        this.operation = "PROG3";
     }
 
     public Prog3(Expression a, Expression b, Expression c) {

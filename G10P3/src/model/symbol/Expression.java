@@ -1,5 +1,7 @@
 package model.symbol;
 
+import model.symbol.terminals.Terminal;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,20 +11,23 @@ public abstract class Expression {
     protected int childrenCount;
     protected String operation;
     protected List<Expression> children;
+    protected int height;
 
     public Expression() {
         this.children = new ArrayList<>();
+        this.height = 1;
     }
 
     public Expression(String operation) {
+        this();
         this.operation = operation;
-        this.children = new ArrayList<>();
     }
 
     public abstract Object execute(boolean isThereFood);
 
     public void addChild(Expression child) {
         this.children.add(child);
+        if (this.height == 0) this.height++;
     }
 
     public Expression getChild(int index) {
@@ -42,6 +47,10 @@ public abstract class Expression {
 
     public void setOperation(String operation) {
         this.operation = operation;
+    }
+
+    public int getHeight() {
+        return this.height;
     }
 
     public int getX() {
@@ -103,5 +112,9 @@ public abstract class Expression {
 
         sb.append(")");
         return sb.toString();
+    }
+
+    public void collectTerminals(List<Terminal> terminals) {
+        for (Expression child : this.children) if (child != null) child.collectTerminals(terminals);
     }
 }

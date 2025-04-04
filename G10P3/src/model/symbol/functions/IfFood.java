@@ -6,6 +6,7 @@ public class IfFood extends Expression {
     public IfFood() {
         super();
         this.childrenCount = 2;
+        this.operation = "SICOMIDA";
     }
 
     public IfFood(Expression a, Expression b) {

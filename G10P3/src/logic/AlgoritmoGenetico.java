@@ -5,11 +5,13 @@ import logic.cruce.CruceFactory;
 import logic.escalado.Escalado;
 import logic.escalado.EscaladoFactory;
 import logic.mutacion.Mutacion;
+import logic.mutacion.MutacionFactory;
 import logic.seleccion.Seleccion;
 import logic.seleccion.SeleccionFactory;
 import logic.seleccion.Seleccionable;
 import model.Individuo;
 import model.IndividuoFactory;
+import model.IndividuoTree;
 import model.Mapa;
 import utils.Transfer;
 import utils.Valores;
@@ -17,10 +19,7 @@ import utils.NodoIndividuo;
 import utils.Pair;
 import view.Controls;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.PriorityQueue;
+import java.util.*;
 
 public class AlgoritmoGenetico<T> {
 
@@ -41,6 +40,8 @@ public class AlgoritmoGenetico<T> {
     private String crossType;
     private Mutacion mutacion;
     private int funcIndex;
+
+    private Random rand;
 
     private double errorValue;
     private int dimension;
@@ -73,6 +74,7 @@ public class AlgoritmoGenetico<T> {
     public AlgoritmoGenetico(Controls controlPanel) {
         this.controlPanel = controlPanel;
         this.map = new Mapa();
+        this.rand = new Random();
     }
 
 
@@ -83,6 +85,8 @@ public class AlgoritmoGenetico<T> {
         if (!comprueba_valores())
             return;
 
+        this.mutacion = MutacionFactory.getMutation(0);
+
         initialize_population(funcIndex, errorValue);
 
         Comparator<NodoIndividuo> comparator = Comparator.comparingDouble(NodoIndividuo::getValue);
@@ -92,7 +96,6 @@ public class AlgoritmoGenetico<T> {
         this.seleccionables = new Seleccionable[this.populationSize];
 
         this.cross = (Cruce<T>) CruceFactory.getCruceType(crossType);
-        this.mutacion = new Mutacion(probMutacion, valores.mut_idx);
 
         // Almacena el progreso de las generaciones
         generationProgress = new double[3][generations + 1];
@@ -132,7 +135,12 @@ public class AlgoritmoGenetico<T> {
     }
 
     private void mutate_population(){
-        mutated += mutacion.mut_population(population,elitQ);
+        for (Individuo i : population) {
+            if (rand.nextDouble() < this.probMutacion) {
+                mutacion.mutate(((IndividuoTree) i).getTree());
+                mutated++;
+            }
+        }
     }
 
     private void cross_population(int[] seleccionados) {

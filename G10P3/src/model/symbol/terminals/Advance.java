@@ -7,6 +7,7 @@ public class Advance extends Terminal {
         super("Advance");
     }
 
+    @Override
     public Expression clone() {
         return new Advance();
     }
