@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class Tree {
+public class Tree implements Cloneable{
     public Expression root;
 
     private int maxDepth;
@@ -221,5 +221,12 @@ public class Tree {
             return "Empty Tree";
         }
         return root.toString();
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        Tree clonedTree = (Tree) super.clone();
+        clonedTree.root = this.root.copy();
+        return clonedTree;
     }
 }

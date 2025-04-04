@@ -6,5 +6,5 @@ public abstract class Cruce <T>{
         this.tamCromosoma = tamCromosoma;
     }
 
-    public abstract void cross(T[] c1, T[] c2);
+    public abstract void cross(T c1, T c2);
 }

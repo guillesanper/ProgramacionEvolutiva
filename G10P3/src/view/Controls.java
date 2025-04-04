@@ -3,6 +3,7 @@ package view;
 import logic.AlgoritmoGenetico;
 import model.Individuo;
 import model.Mapa;
+import model.Tree;
 import utils.*;
 import org.math.plot.*;
 
@@ -319,8 +320,8 @@ public class Controls extends JPanel {
 
     private void run() {
         setValues();
-        if (this.funcion_CBox.getSelectedIndex() == 4)
-            algoritmoGenetico = new AlgoritmoGenetico<Double>(this);
+        if (this.funcion_CBox.getSelectedIndex() == 0)
+            algoritmoGenetico = new AlgoritmoGenetico<Tree>(this);
         else
             algoritmoGenetico = new AlgoritmoGenetico<Boolean>(this);
 
