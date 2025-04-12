@@ -111,6 +111,12 @@ public class Tree implements Cloneable{
         return allNodes.get(index);
     }
 
+    public Expression findParent(Expression node) {
+        if (node == this.root) return this.root;
+
+        return this.root.findParent(node);
+    }
+
     // Método auxiliar para recolectar todos los nodos del árbol
     private void collectNodes(Expression node, List<Expression> nodes) {
         if (node != null) {

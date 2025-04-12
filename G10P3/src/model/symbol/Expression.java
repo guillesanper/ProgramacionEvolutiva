@@ -122,4 +122,30 @@ public abstract class Expression {
     }
 
     public abstract void mutate();
+
+    public Expression findParent(Expression node) {
+        if (this.childrenCount == 0) return null;
+
+        for (Expression child : this.children) {
+            if (child == node) return this;
+        }
+
+        Expression ret = null;
+
+        for (Expression child: this.children) {
+            if (ret != null) return ret;
+            ret = child.findParent(node);
+        }
+
+        return ret;
+    }
+
+    public void changeChild(Expression original, Expression replacement) {
+        for (int i = 0; i < this.getChildrenCount(); i++) {
+            if (this.children.get(i) == original) {
+                this.children.set(i, replacement);
+                return;
+            }
+        }
+    }
 }
