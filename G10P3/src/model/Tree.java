@@ -206,7 +206,7 @@ public class Tree implements Cloneable{
         this.columns = columns;
     }
 
-    public int getNodes() {
+    public int getNumberOfNodes() {
         return nodes;
     }
 

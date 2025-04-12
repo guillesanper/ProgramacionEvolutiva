@@ -14,6 +14,7 @@ public abstract class FitnessFunctionFactory {
     }
 
     public abstract FitnessFunction getFunction(Integer index);
+    public abstract FitnessFunction getBloatingController(FitnessFunction ff, double averagePopulationSize);
     public abstract Pair<Double,Double> getInterval();
 
 }
