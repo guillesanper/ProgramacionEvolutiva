@@ -26,6 +26,10 @@ public class FitnessFunctionFactoryImp extends FitnessFunctionFactory{
         return new TarpeianBloating(ff, averagePopSize);
     }
 
+    public FitnessFunction getBloatingController(int index, double averagePopSize) {
+        return new TarpeianBloating(this.getFunction(index), averagePopSize);
+    }
+
 
     public Pair<Double,Double> getInterval() {
         return interval;
