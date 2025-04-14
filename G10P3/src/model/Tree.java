@@ -111,6 +111,15 @@ public class Tree implements Cloneable{
         return allNodes.get(index);
     }
 
+    public Expression getRandomSubtree() {
+        List<Expression> allNodes = new ArrayList<>();
+        for (Expression child : root.getChildren()) collectNodes(child, allNodes);
+
+        int index = random.nextInt(allNodes.size());
+        return allNodes.get(index);
+    }
+
+
     public Expression findParent(Expression node) {
         if (node == this.root) return this.root;
 
