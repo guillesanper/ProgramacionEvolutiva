@@ -29,6 +29,7 @@ public class Controls extends JPanel {
     private JComboBox<String> cruce_CBox;
     private JComboBox<String> mutacion_CBox;
     private JComboBox<String> escalado_CBox;
+    private JComboBox<Integer> min_depth_CBox;
     private JSpinner dimensionSpinner;
     private JCheckBox invMejoradoCheckbox;
     private Plot2DPanel plot2D;
@@ -86,9 +87,9 @@ public class Controls extends JPanel {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         String[] funciones = {
-                "FULL",
-                "RAMPED HALF",
-                "GROW"
+                "GROW",
+                "COMPLETE",
+                "RAMPED AND HALF"
         };
         String[] seleccion = {"Ruleta",
                 "Torneo Deterministico",
@@ -113,6 +114,10 @@ public class Controls extends JPanel {
         cruce_CBox = new JComboBox<>(cruce);
         mutacion_CBox = new JComboBox<>(mutacion);
         escalado_CBox = new JComboBox<>(escalados);
+        min_depth_CBox = new JComboBox<>();
+        for (int i = 2; i <= 10; i++) {
+            min_depth_CBox.addItem(i);
+        }
 
         SpinnerNumberModel spinnerModel = new SpinnerNumberModel(2, 1, 10, 1);
         dimensionSpinner.setModel(spinnerModel);
@@ -197,6 +202,8 @@ public class Controls extends JPanel {
         gbc.gridy++;
         leftPanel.add(new JLabel("  Metodo de inicializacion:"), gbc);
         gbc.gridy++;
+        leftPanel.add(new JLabel("  Profundidad minima:"), gbc);
+        gbc.gridy++;
         leftPanel.add(new JLabel("  Escalado"), gbc);
         gbc.gridy++;
         leftPanel.add(new JLabel("  Elitismo:"), gbc);
@@ -228,6 +235,8 @@ public class Controls extends JPanel {
         leftPanel.add(prob_mut, gbc);
         gbc.gridy++;
         leftPanel.add(funcion_CBox, gbc);
+        gbc.gridy++;
+        leftPanel.add(min_depth_CBox, gbc);
         gbc.gridy++;
         leftPanel.add(escalado_CBox, gbc);
         gbc.gridy++;
@@ -406,7 +415,8 @@ public class Controls extends JPanel {
                 Integer.parseInt(elitismo.getText()),
                 (int) dimensionSpinner.getValue(),
                 (String) escalado_CBox.getSelectedItem(),
-                invMejoradoCheckbox.isSelected(), bloating_controller_checkbox.isSelected()); // Añadimos el estado del checkbox
+                invMejoradoCheckbox.isSelected(),
+                (Integer) min_depth_CBox.getSelectedItem()); // Añadimos el estado del checkbox
     }
 
     public Valores get_valores() {

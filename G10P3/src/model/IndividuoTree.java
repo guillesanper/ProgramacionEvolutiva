@@ -1,22 +1,13 @@
 package model;
 
+import logic.evaluacion.FitnessFunctionFactory;
+import model.symbol.Expression;
+
 public class IndividuoTree extends Individuo<Tree> {
 
 
-    public IndividuoTree(int maxDepth, int rows, int columns, int initialization_method_index) {
+    public IndividuoTree(int maxDepth, int rows, int columns) {
         this.chromosome = new Tree(maxDepth, rows, columns);
-
-        // Inicializar el árbol según el metodo especificado
-        switch (initialization_method_index) {
-            case 0:
-                chromosome.createFullTree(maxDepth);
-                break;
-            case 1:
-                chromosome.createRampedHalfAndHalfTree(maxDepth);
-                break;
-            default:
-                chromosome.createGrowTree(maxDepth);
-        }
 
         fitness = 0; // Inicialmente no hay fitness calculado
     }

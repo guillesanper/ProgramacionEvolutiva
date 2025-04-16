@@ -6,13 +6,14 @@ public class Valores {
     public String selectionType;
     public String cross_type;
     public double prob_cruce;
-    public int mut_idx;
+    public int mutationType;
     public double prob_mut;
     public double precision;
     public int funcion_idx;
     public int elitismo;
     public int dimension;
     public String scaling;
+    public int min_depth;  // Nuevo campo para la profundidad mínima
     public boolean invMejorado; // Nueva propiedad para INV mejorado
     public boolean bloating_controller;
 
@@ -36,7 +37,7 @@ public class Valores {
         this.selectionType = selectionType;
         this.cross_type = cross_type;
         this.prob_cruce = prob_cruce;
-        this.mut_idx = mut_idx;
+        this.mutationType = mutationType;
         this.prob_mut = prob_mut;
         this.precision = precision;
         this.funcion_idx = funcion_idx;

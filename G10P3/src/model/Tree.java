@@ -23,20 +23,8 @@ public class Tree implements Cloneable{
         this.columns = columns;
     }
 
-    // Método para crear un árbol con inicialización Grow
-    public void createGrowTree(int maxDepth) {
-        this.root = growExpression(0, maxDepth);
-        this.nodes = root.countNodes();
-    }
-
-    // Método para crear un árbol con inicialización Full
-    public void createFullTree(int maxDepth) {
-        this.root = fullExpression(0, maxDepth);
-        this.nodes = root.countNodes();
-    }
-
-    // Método auxiliar para crear una expresión utilizando el método Grow
-    private Expression growExpression(int depth, int maxDepth) {
+    // Métodos auxiliares para los inicializadores externos
+    public Expression growExpression(int depth, int maxDepth) {
         // Si estamos en la profundidad máxima o aleatoriamente decidimos usar un terminal
         if (depth >= maxDepth || (depth > 0 && random.nextDouble() < 0.5)) {
             // Crear nodo terminal aleatorio
@@ -47,8 +35,7 @@ public class Tree implements Cloneable{
         }
     }
 
-    // Método auxiliar para crear una expresión utilizando el método Full
-    private Expression fullExpression(int depth, int maxDepth) {
+    public Expression fullExpression(int depth, int maxDepth) {
         if (depth >= maxDepth) {
             // En la profundidad máxima, crear nodo terminal
             return createRandomTerminal();
@@ -86,19 +73,11 @@ public class Tree implements Cloneable{
                 b = growExpression(depth + 1, maxDepth);
                 return ExpressionFactory.createProg2(a, b);
         }
-
     }
 
-    // Método para implementar la inicialización "Ramped and Half"
-    public void createRampedHalfAndHalfTree(int maxDepth) {
-        boolean useGrow = random.nextBoolean();
-
-        if (useGrow) {
-            this.root = growExpression(0, maxDepth);
-        } else {
-            this.root = fullExpression(0, maxDepth);
-        }
-
+    // Nuevo método para establecer directamente la raíz y actualizar nodos
+    public void setRoot(Expression root) {
+        this.root = root;
         this.nodes = root.countNodes();
     }
 

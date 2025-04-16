@@ -4,6 +4,8 @@ import logic.cruce.Cruce;
 import logic.cruce.CruceFactory;
 import logic.escalado.Escalado;
 import logic.escalado.EscaladoFactory;
+import logic.inicializacion.InitializationFactory;
+import logic.inicializacion.InitializationMethod;
 import logic.evaluacion.FitnessFunction;
 import logic.evaluacion.FitnessFunctionFactory;
 import logic.mutacion.Mutacion;
@@ -39,13 +41,14 @@ public class AlgoritmoGenetico<T> {
     private Cruce<T> cross;
     private String crossType;
     private Mutacion mutacion;
+    private InitializationMethod initializationMethod;
     private int funcIndex;
     private boolean bloating_controller;
 
     private Random rand;
 
     private double errorValue;
-    private int dimension;
+    private int min_depth;
 
     private int elitismo;
     private int eliteSize;
@@ -87,6 +90,7 @@ public class AlgoritmoGenetico<T> {
             return;
 
         this.mutacion = MutacionFactory.getMutation(0);
+
         initialize_population(funcIndex, errorValue);
 
         Comparator<NodoIndividuo> comparator = Comparator.comparingDouble(NodoIndividuo::getValue);
@@ -343,6 +347,8 @@ public class AlgoritmoGenetico<T> {
         this.best = this.population[0];
         this.totalBest = isMin() ? Double.MAX_VALUE : Double.MIN_VALUE;
         this.graphIntervals = IndividuoFactory.getInterval();
+        this.initializationMethod = InitializationFactory.getInstance().getInitializationMethod(func_index);
+        this.initializationMethod.initialize_population((Individuo<Tree>[]) population);
     }
 
     private void setValues(Valores valores) {
@@ -361,6 +367,7 @@ public class AlgoritmoGenetico<T> {
         if(scalingActivated)
             this.scaling = EscaladoFactory.getEscalado(valores.scaling);
         this.bloating_controller = valores.bloating_controller;
+        this.min_depth = valores.min_depth;
     }
 
     private boolean comprueba_valores() {
