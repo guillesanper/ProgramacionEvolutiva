@@ -14,6 +14,7 @@ public class Valores {
     public int dimension;
     public String scaling;
     public boolean invMejorado; // Nueva propiedad para INV mejorado
+    public boolean bloating_controller;
 
 
     public Valores(int populationSize, int generations, String selectionType,
@@ -43,5 +44,27 @@ public class Valores {
         this.dimension = dimension;
         this.scaling = scaling;
         this.invMejorado = invMejorado;
+    }
+
+    // Constructor sobrecargado que incluye el parámetro invMejorado
+    public Valores(int populationSize, int generations, String selectionType,
+                   String cross_type, double prob_cruce, int mut_idx, double prob_mut,
+                   double precision, int funcion_idx, int elitismo, int dimension, String scaling,
+                   boolean invMejorado, boolean bloating_controller) {
+
+        this.populationSize = populationSize;
+        this.generations = generations;
+        this.selectionType = selectionType;
+        this.cross_type = cross_type;
+        this.prob_cruce = prob_cruce;
+        this.mut_idx = mut_idx;
+        this.prob_mut = prob_mut;
+        this.precision = precision;
+        this.funcion_idx = funcion_idx;
+        this.elitismo = elitismo;
+        this.dimension = dimension;
+        this.scaling = scaling;
+        this.invMejorado = invMejorado;
+        this.bloating_controller = bloating_controller;
     }
 }

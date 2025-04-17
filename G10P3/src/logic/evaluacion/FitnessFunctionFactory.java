@@ -13,8 +13,7 @@ public abstract class FitnessFunctionFactory {
         return instance;
     }
 
-    public abstract FitnessFunction getFunction(Integer index);
-    public abstract FitnessFunction getBloatingController(FitnessFunction ff, double averagePopulationSize);
+    public abstract FitnessFunction getFunction(Integer index, boolean bloating_controller, double avgPopSize);
     public abstract Pair<Double,Double> getInterval();
 
 }

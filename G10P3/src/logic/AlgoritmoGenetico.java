@@ -4,6 +4,8 @@ import logic.cruce.Cruce;
 import logic.cruce.CruceFactory;
 import logic.escalado.Escalado;
 import logic.escalado.EscaladoFactory;
+import logic.evaluacion.FitnessFunction;
+import logic.evaluacion.FitnessFunctionFactory;
 import logic.mutacion.Mutacion;
 import logic.mutacion.MutacionFactory;
 import logic.seleccion.Seleccion;
@@ -23,6 +25,7 @@ public class AlgoritmoGenetico<T> {
     private Individuo<T>[] population;
     private double totalFitness;
     private int populationSize;
+    private FitnessFunction ff;
 
     private Individuo<T> best;
 
@@ -37,6 +40,7 @@ public class AlgoritmoGenetico<T> {
     private String crossType;
     private Mutacion mutacion;
     private int funcIndex;
+    private boolean bloating_controller;
 
     private Random rand;
 
@@ -83,7 +87,6 @@ public class AlgoritmoGenetico<T> {
             return;
 
         this.mutacion = MutacionFactory.getMutation(0);
-
         initialize_population(funcIndex, errorValue);
 
         Comparator<NodoIndividuo> comparator = Comparator.comparingDouble(NodoIndividuo::getValue);
@@ -203,8 +206,17 @@ public class AlgoritmoGenetico<T> {
         double bestGen = isMin() ? Double.MAX_VALUE : Double.MIN_VALUE;
         Individuo<T> bestGenInd = population[0];
 
+        double avgSize = (double) Arrays.stream(population).reduce(0, (acc, ind) -> {
+            int nodes = ((IndividuoTree) ind).getTree().getNumberOfNodes();
+            return acc + nodes;
+        }, Integer::sum) / populationSize;
+
         // Evaluate using parallel streams to speed up fitness computations
         Arrays.stream(population).parallel().forEach(ind -> {
+            FitnessFunction ff = FitnessFunctionFactory.getInstance().getFunction(this.funcIndex, this.bloating_controller, avgSize);
+            double f = ff.calculateFitness(((IndividuoTree)ind).getTree());
+            ((IndividuoTree) ind).setFitness(f);
+
             double fit = ind.getFitness(); // This will call the fitness function
             ind.fitness = fit;
         });
@@ -348,6 +360,7 @@ public class AlgoritmoGenetico<T> {
         this.scalingActivated = valores.scaling != "Ninguno";
         if(scalingActivated)
             this.scaling = EscaladoFactory.getEscalado(valores.scaling);
+        this.bloating_controller = valores.bloating_controller;
     }
 
     private boolean comprueba_valores() {

@@ -12,7 +12,14 @@ public class FitnessFunctionFactoryImp extends FitnessFunctionFactory{
     public FitnessFunctionFactoryImp(){
         map = new Mapa();
     }
-    public FitnessFunction getFunction(Integer index){
+
+    @Override
+    public FitnessFunction getFunction(Integer index, boolean bloating_controller, double avgPopSize) {
+        if (!bloating_controller) return this.getFunction(index);
+        return this.getBloatingController(index, avgPopSize);
+    }
+
+    private  FitnessFunction getFunction(Integer index){
         FitnessFunction ff;
         switch (index){
             default:
@@ -22,14 +29,9 @@ public class FitnessFunctionFactoryImp extends FitnessFunctionFactory{
         }
     }
 
-    public FitnessFunction getBloatingController(FitnessFunction ff, double averagePopSize) {
-        return new TarpeianBloating(ff, averagePopSize);
-    }
-
     public FitnessFunction getBloatingController(int index, double averagePopSize) {
         return new TarpeianBloating(this.getFunction(index), averagePopSize);
     }
-
 
     public Pair<Double,Double> getInterval() {
         return interval;

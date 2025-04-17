@@ -23,6 +23,7 @@ public class Controls extends JPanel {
     private JTextField prob_mut;
     private JTextField precision;
     private JTextField elitismo;
+    private JCheckBox bloating_controller_checkbox;
     private JComboBox<String> funcion_CBox;
     private JComboBox<String> seleccion_CBox;
     private JComboBox<String> cruce_CBox;
@@ -54,6 +55,7 @@ public class Controls extends JPanel {
         this.historyGraphic = new HistoryGraphic();
         this.houseView = new HouseView();
         this.invMejoradoCheckbox = new JCheckBox("INV Mejorado");
+        this.bloating_controller_checkbox = new JCheckBox("Controlar bloating");
 
         init_GUI();
     }
@@ -234,6 +236,7 @@ public class Controls extends JPanel {
         // Añadir el checkbox INV mejorado después del elitismo
         gbc.gridy++;
         leftPanel.add(invMejoradoCheckbox, gbc);
+        leftPanel.add(bloating_controller_checkbox, gbc);
 
         JPanel runAndHistoryPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbcRun = new GridBagConstraints();
@@ -403,7 +406,7 @@ public class Controls extends JPanel {
                 Integer.parseInt(elitismo.getText()),
                 (int) dimensionSpinner.getValue(),
                 (String) escalado_CBox.getSelectedItem(),
-                invMejoradoCheckbox.isSelected()); // Añadimos el estado del checkbox
+                invMejoradoCheckbox.isSelected(), bloating_controller_checkbox.isSelected()); // Añadimos el estado del checkbox
     }
 
     public Valores get_valores() {
