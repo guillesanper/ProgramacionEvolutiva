@@ -191,7 +191,7 @@ public class AlgoritmoGenetico<T> {
         Individuo<T>[] copy = new Individuo[populationSize];
         for (int i = 0; i < populationSize; i++) {
             // Crear un nuevo individuo para evitar referencias compartidas
-            copy[i] = (Individuo<T>) IndividuoFactory.createIndividuo(funcIndex);
+            copy[i] = (Individuo<T>) IndividuoFactory.createIndividuo(min_depth,bloating_controller,5);
 
             // Copiar los valores del cromosoma sin compartir la referencia
             copy[i].chromosome = population[selec[i]].chromosome;
@@ -216,14 +216,12 @@ public class AlgoritmoGenetico<T> {
         }, Integer::sum) / populationSize;
 
         // Evaluate using parallel streams to speed up fitness computations
-        Arrays.stream(population).parallel().forEach(ind -> {
+        for (Individuo<T> ind : population) {
             FitnessFunction ff = FitnessFunctionFactory.getInstance().getFunction(this.funcIndex, this.bloating_controller, avgSize);
             double f = ff.calculateFitness(((IndividuoTree)ind).getTree());
             ((IndividuoTree) ind).setFitness(f);
-
-            double fit = ind.getFitness(); // This will call the fitness function
-            ind.fitness = fit;
-        });
+            ind.fitness = f;
+        }
 
         // Then, iterate over population for updating totals and elitism
         for (int i = 0; i < populationSize; i++) {
@@ -342,7 +340,7 @@ public class AlgoritmoGenetico<T> {
     private void initialize_population(int func_index, double errorValue) {
         this.population = new Individuo[populationSize];
         for (int i = 0; i < this.populationSize; i++) {
-            this.population[i] = (Individuo<T>) IndividuoFactory.createIndividuo(func_index);
+            this.population[i] = (Individuo<T>) IndividuoFactory.createIndividuo(min_depth,bloating_controller,5);
         }
         this.best = this.population[0];
         this.totalBest = isMin() ? Double.MAX_VALUE : Double.MIN_VALUE;
@@ -359,7 +357,6 @@ public class AlgoritmoGenetico<T> {
         this.probMutacion = valores.prob_mut;
         this.funcIndex = valores.funcion_idx;
         this.errorValue = valores.precision;
-        this.dimension = valores.dimension;
         this.elitismo = valores.elitismo;
         this.generations = valores.generations;
         this.eliteSize = (int) (populationSize * (elitismo / 100.0));
@@ -379,10 +376,7 @@ public class AlgoritmoGenetico<T> {
     }
 
     private boolean isMin() {
-        return true;
+        return false;
     }
 
-    private boolean isFunc5() {
-        return this.funcIndex == 4;
-    }
 }

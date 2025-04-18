@@ -224,4 +224,28 @@ public class Mapa {
     public static int getCols(){
         return COLS;
     }
+
+    public void reset() {
+        // Reinicializar la matriz
+        grid = new String[ROWS][COLS];
+
+        // Llenar con espacios vacíos
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
+                grid[i][j] = " ";
+            }
+        }
+
+        // Volver a cargar el rastro de comida
+        loadSantaFeTrail();
+
+        // Reiniciar posición y dirección
+        position = new Point(0, 0);
+        direction = 0; // Este
+        foodEaten = 0;
+
+        // Reiniciar la lista de ruta
+        path = new ArrayList<>();
+        path.add(new Point(position));
+    }
 }

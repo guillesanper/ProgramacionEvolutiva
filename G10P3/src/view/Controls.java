@@ -2,14 +2,19 @@ package view;
 
 import logic.AlgoritmoGenetico;
 import model.Individuo;
+import model.IndividuoTree;
 import model.Mapa;
 import model.Tree;
+import model.symbol.Expression;
 import utils.*;
 import org.math.plot.*;
 
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
+import java.util.ArrayList;
+import java.awt.Point;
+import java.util.List;
 
 public class Controls extends JPanel {
 
@@ -306,7 +311,6 @@ public class Controls extends JPanel {
         plot2D.getAxis(1).setLabelText("Fitness");
         plot2D.setFixedBounds(1, t.interval.get_first(), t.interval.get_second()); // Fix Y-axis bounds
 
-
         bestFitnessArea.setText(String.valueOf(t.best.getFitness()));
         worstFitnessArea.setText(String.valueOf(t.worstFitness));
         textArea.setText(printIndividuo(t.best));
@@ -317,12 +321,61 @@ public class Controls extends JPanel {
         if (t.save)
             this.historyGraphic.saveState(new HistoryState(t.vals, t.interval, t.best, t.crossed, t.muted, t.worstFitness));
 
-        Mapa map = new Mapa();
+        // Actualizar la visualización de la hormiga en HouseView
+        Mapa mapa = new Mapa();
 
-        //houseView.setPath(map.calcularRutaCompleta(t.best));
+        // Obtener el mejor árbol de expresión
+        if (t.best instanceof IndividuoTree) {
+            IndividuoTree individuoTree = (IndividuoTree) t.best;
+            Tree tree = individuoTree.getTree();
+            Expression program = tree.getRoot();
+
+            // Resetear el mapa y la vista
+            mapa.reset();
+            houseView.setGrid(mapa.getGrid());
+
+            // Lista para almacenar el camino de la hormiga
+            List<Point> antPath = new ArrayList<>();
+            antPath.add(new Point(mapa.getPosition()));
+
+            int steps = 0;
+
+            // Ejecutar la simulación hasta agotar pasos o encontrar toda la comida
+            while (steps < 400 && mapa.getFoodEaten() < 89) {
+                boolean isThereFood = mapa.isFoodAhead();
+
+                // Ejecutar la expresión actual (el programa genético)
+                Object action = program.execute(isThereFood);
+
+                if (action instanceof String) {
+                    String actionStr = (String) action;
+                    switch (actionStr) {
+                        case "ADVANCE":
+                            mapa.moveForward();
+                            break;
+                        case "LEFT":
+                            mapa.turnLeft();
+                            break;
+                        case "RIGHT":
+                            mapa.turnRight();
+                            break;
+                    }
+                }
+
+                // Añadir la nueva posición al camino
+                antPath.add(new Point(mapa.getPosition()));
+
+                // Incrementar el contador de pasos
+                steps++;
+            }
+
+            // Actualizar la vista con el grid y el camino
+            houseView.setGrid(mapa.getGrid());
+            houseView.setAntPath(antPath);
+        }
+
+        // Actualizar la vista
         houseView.repaint();
-
-
     }
 
     public void update_error(String s) {
@@ -392,8 +445,17 @@ public class Controls extends JPanel {
 
     private String printIndividuo(Individuo individuo) {
         StringBuilder texto_salida = new StringBuilder();
-        for (Integer alelo : (Integer[]) individuo.chromosome) {
-            texto_salida.append(alelo).append("\n");
+        if (individuo instanceof IndividuoTree) {
+            IndividuoTree individuoTree = (IndividuoTree) individuo;
+            Tree tree = individuoTree.getTree();
+
+            // Obtener la representación en String del árbol completo
+            texto_salida.append("Fitness: ").append(individuo.getFitness()).append("\n");
+            texto_salida.append("Expresión del árbol: ").append(tree.toString()).append("\n");
+            texto_salida.append("Número de nodos: ").append(tree.getNumberOfNodes()).append("\n");
+
+        } else {
+            texto_salida.append("No es un IndividuoTree.");
         }
         return texto_salida.toString();
     }
@@ -415,8 +477,8 @@ public class Controls extends JPanel {
                 Integer.parseInt(elitismo.getText()),
                 (int) dimensionSpinner.getValue(),
                 (String) escalado_CBox.getSelectedItem(),
-                invMejoradoCheckbox.isSelected(),
-                (Integer) min_depth_CBox.getSelectedItem()); // Añadimos el estado del checkbox
+                (Integer) min_depth_CBox.getSelectedItem(),
+                bloating_controller_checkbox.isSelected()); // Añadimos el estado del checkbox
     }
 
     public Valores get_valores() {

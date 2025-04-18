@@ -19,6 +19,7 @@ public class FitnessHormiga implements FitnessFunction{
     @Override
     public double calculateFitness(Tree chromosome) {
         Expression program = chromosome.getRoot();
+        map.reset();
 
         int steps = 0;
 
@@ -32,13 +33,13 @@ public class FitnessHormiga implements FitnessFunction{
             if (action instanceof String) {
                 String actionStr = (String) action;
                 switch (actionStr) {
-                    case "Advance":
+                    case "ADVANCE":
                         map.moveForward();
                         break;
-                    case "Left":
+                    case "LEFT":
                         map.turnLeft();
                         break;
-                    case "Right":
+                    case "RIGHT":
                         map.turnRight();
                         break;
                 }
